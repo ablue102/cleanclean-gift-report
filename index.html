@@ -1,0 +1,1177 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>淨淨贈品/周邊成本明細</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7FBF9;
+    --surface: #FFFFFF;
+    --surface-hover: #EDF8FA;
+    --border: #DDEFF2;
+    --border-strong: #BFE1E6;
+    --text: #223338;
+    --text-muted: #5E7378;
+    --text-faint: #93A6AA;
+    --accent: #68D2DF;
+    --accent-strong: #1D7E8C;
+    --accent-soft: #E6F8FA;
+    --sky: #8FC4DE;
+    --sky-strong: #3A7CA5;
+    --sky-soft: #EAF5FA;
+    --warn: #C99A5C;
+    --warn-soft: #FBF2E4;
+    --danger: #C97A72;
+    --danger-soft: #FBEDEB;
+    --shadow: 0 1px 2px rgba(38, 58, 52, 0.04), 0 6px 20px rgba(38, 58, 52, 0.05);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0D1517;
+      --surface: #122024;
+      --surface-hover: #172A2E;
+      --border: #1F3A3F;
+      --border-strong: #2C4F55;
+      --text: #E4F3F5;
+      --text-muted: #93ADB2;
+      --text-faint: #607A7F;
+      --accent: #68D2DF;
+      --accent-strong: #7BD8E3;
+      --accent-soft: #163238;
+      --sky: #8FC4DA;
+      --sky-strong: #9ED2EA;
+      --sky-soft: #1B333C;
+      --warn: #D3A468;
+      --warn-soft: #362B1B;
+      --danger: #D9928A;
+      --danger-soft: #3A2320;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #0D1517;
+    --surface: #122024;
+    --surface-hover: #172A2E;
+    --border: #1F3A3F;
+    --border-strong: #2C4F55;
+    --text: #E4F3F5;
+    --text-muted: #93ADB2;
+    --text-faint: #607A7F;
+    --accent: #68D2DF;
+    --accent-strong: #7BD8E3;
+    --accent-soft: #163238;
+    --sky: #8FC4DA;
+    --sky-soft: #1B333C;
+    --warn: #D3A468;
+    --warn-soft: #362B1B;
+    --danger: #D9928A;
+    --danger-soft: #3A2320;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  body {
+    font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    padding: clamp(20px, 4vw, 56px) clamp(16px, 5vw, 64px) 96px;
+  }
+
+  .wrap { max-width: 960px; margin: 0 auto; }
+
+  /* ---------- Header ---------- */
+  header.page { margin-bottom: 28px; }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12.5px;
+    letter-spacing: 0.08em;
+    color: var(--accent-strong);
+    background: var(--accent-soft);
+    padding: 4px 12px 4px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+  .eyebrow svg { width: 13px; height: 13px; }
+
+  h1 {
+    font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    font-weight: 800;
+    font-size: clamp(26px, 4vw, 34px);
+    margin: 0 0 8px;
+    text-wrap: balance;
+    letter-spacing: 0.01em;
+  }
+
+  .subtitle { color: var(--text-muted); font-size: 15px; max-width: 62ch; margin: 0; }
+
+  /* ---------- Stat tiles ---------- */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 24px 0 20px; }
+
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    box-shadow: var(--shadow);
+  }
+  .stat .label { font-size: 12px; color: var(--text-faint); letter-spacing: 0.04em; margin-bottom: 6px; }
+  .stat .value {
+    font-family: "IBM Plex Mono", monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: clamp(16px, 2.4vw, 20px);
+    font-weight: 600;
+    color: var(--text);
+  }
+  .stat .value small { font-size: 12px; font-weight: 500; color: var(--text-muted); margin-left: 3px; }
+
+  /* ---------- Notice ---------- */
+  .notice {
+    background: var(--warn-soft);
+    border: 1px solid color-mix(in srgb, var(--warn) 35%, transparent);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 13.5px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+  }
+  .notice strong { color: var(--warn); font-weight: 600; }
+
+  /* ---------- Toolbar ---------- */
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .search { position: relative; flex: 1 1 220px; }
+  .search input {
+    width: 100%;
+    font-family: inherit;
+    font-size: 14px;
+    padding: 10px 14px 10px 36px;
+    border-radius: 10px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--text);
+    outline: none;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .search input:focus { border-color: var(--accent-strong); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .search svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: var(--text-faint); pointer-events: none; }
+
+  .yearfilter { display: flex; gap: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 3px; flex-wrap: wrap; }
+  .yearfilter button {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 13px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    padding: 7px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease;
+  }
+  .yearfilter button:hover { color: var(--text); }
+  .yearfilter button.active { background: var(--accent-soft); color: var(--accent-strong); font-weight: 600; }
+
+  .btn {
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--text-muted);
+    padding: 8px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: border-color .15s ease, color .15s ease, background .15s ease;
+  }
+  .btn:hover { color: var(--text); border-color: var(--accent); }
+  .btn svg { width: 14px; height: 14px; }
+
+  .btn-primary { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; }
+  .btn-primary:hover { background: var(--accent-strong); filter: brightness(1.06); color:#fff; }
+  .btn-primary:disabled { opacity: .45; cursor: default; }
+  .btn-primary:disabled:hover { filter: none; }
+
+  .btn-ghost-accent { color: var(--accent-strong); border-color: var(--accent-soft); background: var(--accent-soft); }
+  .btn-ghost-accent:hover { border-color: var(--accent-strong); }
+
+  .btn-danger-soft { color: var(--danger); background: var(--danger-soft); border-color: var(--danger-soft); }
+  .btn-danger-soft:hover { border-color: var(--danger); }
+
+  .dirty-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--warn); display: inline-block; margin-left: 2px; }
+
+  .toolbar-edit { display: none; }
+  body.edit-mode .toolbar-view { display: none; }
+  body.edit-mode .toolbar-edit { display: flex; }
+
+  /* ---------- Section labels ---------- */
+  .section-label {
+    display: flex; align-items: center; gap: 10px; margin: 30px 0 12px;
+    color: var(--text-faint); font-size: 12.5px; letter-spacing: 0.06em;
+    font-family: "IBM Plex Mono", monospace;
+  }
+  .section-label::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+
+  /* ---------- Product cards (view mode) ---------- */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 10px; box-shadow: var(--shadow); overflow: hidden; }
+  .card > summary { list-style: none; cursor: pointer; padding: 14px 18px; display: flex; align-items: center; gap: 14px; -webkit-tap-highlight-color: transparent; }
+  .card > summary::-webkit-details-marker { display: none; }
+
+  .chevron { flex: 0 0 auto; width: 18px; height: 18px; color: var(--text-faint); transition: transform .18s ease; }
+  details[open] > summary .chevron { transform: rotate(90deg); color: var(--accent-strong); }
+
+  .card-name { flex: 1 1 auto; min-width: 0; font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif; font-weight: 700; font-size: 15.5px; color: var(--text); text-wrap: balance; }
+  .card-name .note { display: block; font-family: "Noto Sans TC", sans-serif; font-weight: 400; font-size: 12px; color: var(--warn); margin-top: 3px; }
+
+  .card-meta { flex: 0 0 auto; display: flex; align-items: center; gap: 10px; }
+  .chip { font-size: 11.5px; color: var(--text-muted); background: var(--sky-soft); padding: 3px 9px; border-radius: 999px; white-space: nowrap; font-weight: 500; }
+
+  .price-block { text-align: right; }
+  .price-primary { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; font-weight: 700; font-size: 16px; color: var(--accent-strong); white-space: nowrap; }
+  .price-primary .unit-suffix { font-family: "Noto Sans TC", sans-serif; font-weight: 400; font-size: 11px; color: var(--text-faint); margin-left: 2px; }
+  .price-primary.missing { color: var(--warn); font-family: "Noto Sans TC", sans-serif; font-size: 13px; }
+  .price-secondary { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; font-size: 11.5px; color: var(--text-faint); white-space: nowrap; }
+
+  .card-body { border-top: 1px solid var(--border); padding: 4px 18px 16px; }
+  .card-note { font-size: 12.5px; color: var(--warn); background: var(--warn-soft); border-radius: 8px; padding: 8px 12px; margin: 12px 0 4px; }
+
+  .table-scroll { overflow-x: auto; }
+  table.items { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 640px; }
+  table.items thead th { text-align: left; font-weight: 600; font-size: 11.5px; letter-spacing: 0.03em; color: var(--text-faint); padding: 10px 10px 8px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  table.items thead th.num { text-align: right; }
+  table.items tbody td { padding: 8px 10px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
+  table.items tbody tr:last-child td { border-bottom: none; }
+  table.items tbody tr:hover td { background: var(--surface-hover); }
+
+  td.stage { font-weight: 500; white-space: nowrap; }
+  td.num { text-align: right; font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td.date { color: var(--text-muted); white-space: nowrap; font-family: "IBM Plex Mono", monospace; }
+  td.note { color: var(--text-muted); font-size: 12.5px; min-width: 200px; }
+  td.empty { color: var(--text-faint); }
+
+  tr.total-row td { border-top: 1px solid var(--border-strong); border-bottom: none; font-weight: 600; padding-top: 10px; color: var(--text-muted); }
+  tr.total-row td.num.unit-emphasis { color: var(--accent-strong); font-weight: 700; font-size: 13.5px; }
+
+  .no-results { text-align: center; color: var(--text-faint); padding: 40px 0; font-size: 14px; display: none; }
+
+  /* ---------- Edit mode ---------- */
+  .card-edit {
+    background: var(--surface);
+    border: 1px solid var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 14px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow);
+    padding: 16px 18px 18px;
+  }
+  .edit-head { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; margin-bottom: 10px; }
+  .edit-field { display: flex; flex-direction: column; gap: 4px; }
+  .edit-field label { font-size: 11px; color: var(--text-faint); letter-spacing: .03em; }
+  .field-name { flex: 1 1 260px; }
+  .field-year { width: 90px; }
+  .field-total { width: 150px; }
+  .field-unit { width: 140px; }
+  .field-emphasis label { color: var(--accent-strong); font-weight: 600; }
+  input.ipt.emphasis { border-color: var(--accent); font-weight: 700; color: var(--accent-strong); }
+  input.ipt.emphasis:focus { border-color: var(--accent-strong); }
+
+  input.ipt, textarea.ipt {
+    font-family: inherit;
+    font-size: 13.5px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-strong);
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    width: 100%;
+  }
+  input.ipt:focus, textarea.ipt:focus { border-color: var(--accent-strong); box-shadow: 0 0 0 3px var(--accent-soft); }
+  input.ipt.mono { font-family: "IBM Plex Mono", monospace; }
+  textarea.ipt { resize: vertical; min-height: 34px; font-family: inherit; }
+
+  .edit-note { margin: 6px 0 12px; }
+  .edit-note label { font-size: 11px; color: var(--text-faint); letter-spacing: .03em; display:block; margin-bottom:4px; }
+
+  .row-del, .card-del {
+    border: none;
+    background: var(--danger-soft);
+    color: var(--danger);
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    transition: background .15s ease;
+  }
+  .row-del:hover, .card-del:hover { background: var(--danger); color: #fff; }
+  .row-del svg, .card-del svg { width: 14px; height: 14px; }
+  .row-del.confirm, .card-del.confirm { background: var(--danger); color: #fff; }
+
+  .items-edit-table { width: 100%; border-collapse: separate; border-spacing: 0 6px; margin-top: 6px; }
+  .items-edit-table th { text-align: left; font-size: 11px; color: var(--text-faint); letter-spacing: .03em; padding: 0 6px 2px; font-weight: 600; }
+  .items-edit-table td { padding: 0 6px; vertical-align: top; }
+  .items-edit-table col.c-stage { width: 16%; }
+  .items-edit-table col.c-qty { width: 8%; }
+  .items-edit-table col.c-rmb { width: 10%; }
+  .items-edit-table col.c-twd { width: 10%; }
+  .items-edit-table col.c-unit { width: 10%; }
+  .items-edit-table col.c-date { width: 9%; }
+  .items-edit-table col.c-note { width: 27%; }
+  .items-edit-table col.c-del { width: 34px; }
+
+  .add-row-btn {
+    margin-top: 8px;
+    font-size: 12.5px;
+    border: 1px dashed var(--border-strong);
+    background: transparent;
+    color: var(--accent-strong);
+    padding: 7px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    text-align: center;
+  }
+  .add-row-btn:hover { border-color: var(--accent-strong); background: var(--accent-soft); }
+
+  .add-actions { display: flex; gap: 10px; margin-top: 6px; }
+  .add-product-card {
+    text-align: center;
+    padding: 18px;
+    border: 1.5px dashed var(--border-strong);
+    border-radius: 14px;
+    color: var(--accent-strong);
+    background: transparent;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    flex: 1 1 0;
+  }
+  .add-product-card:hover { background: var(--accent-soft); border-color: var(--accent-strong); }
+  .add-year-card { color: var(--sky-strong); flex: 0 0 auto; padding-left: 22px; padding-right: 22px; }
+  .add-year-card:hover { background: var(--sky-soft); border-color: var(--sky-strong); }
+
+  @media (max-width: 560px) {
+    .add-actions { flex-direction: column; }
+    .add-year-card { padding: 18px; }
+  }
+
+  /* ---------- Toast ---------- */
+  #toast {
+    position: fixed;
+    bottom: 22px;
+    left: 50%;
+    transform: translateX(-50%) translateY(12px);
+    background: var(--text);
+    color: var(--bg);
+    font-size: 13px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease, transform .2s ease;
+    z-index: 40;
+    white-space: nowrap;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  footer.page { margin-top: 40px; text-align: center; color: var(--text-faint); font-size: 12px; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner { width: 13px; height: 13px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; display: inline-block; }
+
+  @media (max-width: 520px) {
+    .card > summary { flex-wrap: wrap; }
+    .price-block { flex: 1 1 100%; text-align: left; display: flex; justify-content: space-between; order: 3; }
+    .card-meta { flex: 1 1 100%; order: 2; justify-content: flex-start; }
+    .items-edit-table, .items-edit-table thead { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .chevron, .btn, #toast, .spinner { transition: none; animation: none; }
+  }
+
+  /* ---------- Auth modal ---------- */
+  #authOverlay {
+    position: fixed; inset: 0; background: rgba(10, 20, 18, 0.45);
+    display: none; align-items: center; justify-content: center; z-index: 60; padding: 16px;
+  }
+  #authOverlay.show { display: flex; }
+  .auth-card {
+    background: var(--surface); border-radius: 16px; padding: 24px 24px 20px;
+    width: 100%; max-width: 340px; box-shadow: var(--shadow); border: 1px solid var(--border);
+  }
+  .auth-card h2 { font-size: 17px; margin: 0 0 4px; font-weight: 700; }
+  .auth-card p { font-size: 12.5px; color: var(--text-muted); margin: 0 0 16px; }
+  .auth-card label { font-size: 12px; color: var(--text-faint); display: block; margin: 10px 0 4px; }
+  .auth-card .auth-actions { display: flex; gap: 8px; margin-top: 16px; }
+  .auth-card .auth-actions .btn { flex: 1 1 0; justify-content: center; }
+  .auth-card input[type="email"], .auth-card input[type="password"] {
+    width: 100%; font-family: inherit; font-size: 13.5px; padding: 9px 12px;
+    border-radius: 8px; border: 1px solid var(--border-strong); background: var(--bg);
+    color: var(--text); box-sizing: border-box;
+  }
+  .auth-card input[type="email"]:focus, .auth-card input[type="password"]:focus {
+    outline: none; border-color: var(--accent-strong); box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  .auth-error { color: var(--danger); font-size: 12px; margin-top: 8px; min-height: 14px; }
+  .sync-badge { font-size: 11px; color: var(--text-faint); display: inline-flex; align-items: center; gap: 5px; }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); display:inline-block; }
+  .sync-dot.offline { background: var(--danger); }
+  .sync-dot.syncing { background: var(--warn); }
+  .user-badge { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 8px; margin-left: auto; }
+  .user-badge .signout-link { color: var(--accent-strong); cursor: pointer; text-decoration: underline; background: none; border: none; font: inherit; padding: 0; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="page">
+    <span class="eyebrow">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c3.5 3.5 6 7 6 10.5a6 6 0 1 1-12 0C6 10 8.5 6.5 12 3Z"/></svg>
+      淨淨贈品/周邊紀錄
+    </span>
+    <h1>贈品/周邊成本明細總覽</h1>
+    <p class="subtitle">整理自「淨淨」品牌採購試算表，依產品項目分類，點擊每一列可展開樣品、打樣、大貨、運費與關稅等細項支出。</p>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><div class="label">產品項目數</div><div class="value" id="stat-count">–</div></div>
+    <div class="stat"><div class="label">已知成本加總</div><div class="value" id="stat-total">–</div></div>
+    <div class="stat"><div class="label">涵蓋年度數</div><div class="value" id="stat-years">–</div></div>
+  </div>
+
+  <div class="notice">
+    <strong>資料說明：</strong>本表由 Google 試算表內容自動彙整；原始試算表過大，讀取時可能有內容被截斷，「壓克力造型萬用夾 3入1組」因此缺少大貨與總金額列。另有 4 個項目（淨淨IP飲料提袋、淨淨手提開窗盥洗包 第4批、淨淨洗碗刷、淨淨VIP化妝包）因大貨尚未下單，原表台幣單價顯示 #DIV/0!，故標示為「尚無單價」。原表中 2 列空白範本（無任何金額）已略過未列入。
+  </div>
+
+  <div class="toolbar toolbar-view" id="toolbarView">
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" placeholder="搜尋產品名稱…" autocomplete="off">
+    </div>
+    <div class="yearfilter" id="yearFilter"></div>
+    <button class="btn" id="toggleAllBtn">全部展開</button>
+    <button class="btn btn-ghost-accent" id="enterEditBtn" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+      編輯
+    </button>
+  </div>
+
+  <div class="toolbar toolbar-edit" id="toolbarEdit">
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInputEdit" placeholder="搜尋產品名稱…" autocomplete="off">
+    </div>
+    <button class="btn" id="exitEditBtn">離開編輯</button>
+    <button class="btn btn-primary" id="saveBtn">
+      <span id="saveBtnLabel">儲存變更</span><span class="dirty-dot" id="dirtyDot" style="display:none"></span>
+    </button>
+    <span class="user-badge" id="userBadge" style="display:none">
+      已登入：<span id="userEmail"></span>
+      <button class="signout-link" id="signOutBtn" type="button">登出</button>
+    </span>
+  </div>
+
+  <div id="list"></div>
+  <div class="add-actions" id="addActions" style="display:none">
+    <button class="add-product-card" id="addProductBtn">＋ 新增產品項目</button>
+    <button class="add-product-card add-year-card" id="addYearBtn">＋ 新增年度</button>
+  </div>
+  <p class="no-results" id="noResults">找不到符合的產品。</p>
+
+  <footer class="page">
+    共 <span id="footer-count">0</span> 項產品・整理時間 2026-08-24
+    <span class="sync-badge" id="syncBadge" style="margin-left:10px">
+      <span class="sync-dot syncing" id="syncDot"></span><span id="syncText">連線中…</span>
+    </span>
+  </footer>
+</div>
+
+<div id="toast"></div>
+
+<div id="authOverlay">
+  <div class="auth-card">
+    <h2>登入以編輯</h2>
+    <p>請使用管理員提供的帳號密碼登入，登入後即可編輯並發布變更給所有人。</p>
+    <label for="authEmail">Email</label>
+    <input type="email" id="authEmail" autocomplete="username" placeholder="you@example.com">
+    <label for="authPassword">密碼</label>
+    <input type="password" id="authPassword" autocomplete="current-password" placeholder="••••••••">
+    <div class="auth-error" id="authError"></div>
+    <div class="auth-actions">
+      <button class="btn" id="authCancelBtn" type="button">取消</button>
+      <button class="btn btn-primary" id="authSubmitBtn" type="button">
+        <span id="authSubmitLabel">登入</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script id="appScript">
+/* ---------------- Firebase project config ----------------
+   Replace the placeholder values below with your own Firebase project's
+   web app config (Firebase Console → Project settings → Your apps → SDK
+   setup and configuration). See the setup tutorial for step-by-step
+   instructions. */
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+const FIRESTORE_COLLECTION = "jingjing";
+const FIRESTORE_DOC = "costReport";
+const FIREBASE_SDK_VERSION = "12.18.0";
+
+// Whether the placeholder config above has actually been filled in.
+const firebaseConfigFilled = !String(firebaseConfig.apiKey).startsWith("YOUR_");
+
+// These are populated (via dynamic import(), inside a try/catch) once the
+// Firebase SDK modules have loaded successfully — see loadFirebaseSDK()
+// below. Using dynamic import() here (instead of static top-level import
+// statements) is deliberate: it means a blocked/offline connection to the
+// Firebase CDN only disables cloud sync, it never breaks the rest of the
+// page (search, expand/collapse, viewing existing data all still work).
+let initializeApp, getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged;
+let getFirestore, doc, setDoc, onSnapshot, serverTimestamp;
+
+let firebaseApp = null, auth = null, db = null, docRef = null;
+let firebaseReady = false; // true only once the SDK is loaded AND config + init all succeeded
+let currentUser = null;
+let pendingRemoteState = null;
+
+async function loadFirebaseSDK() {
+  try {
+    const [appMod, authMod, fsMod] = await Promise.all([
+      import(`https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}/firebase-app.js`),
+      import(`https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}/firebase-auth.js`),
+      import(`https://www.gstatic.com/firebasejs/${FIREBASE_SDK_VERSION}/firebase-firestore.js`),
+    ]);
+    ({ initializeApp } = appMod);
+    ({ getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } = authMod);
+    ({ getFirestore, doc, setDoc, onSnapshot, serverTimestamp } = fsMod);
+    return true;
+  } catch (e) {
+    console.error("Firebase SDK failed to load (offline, or gstatic.com is blocked):", e);
+    return false;
+  }
+}
+
+const PRODUCTS_INITIAL = [{"name":"(母親節VIP贈禮) 天然白玉刮痧板","total":98072,"unit":65.38,"items":[{"s":"sample","q":null,"rmb":null,"twd":327,"u":null,"d":"12/24","n":"慕尚未來"},{"s":"sample","q":null,"rmb":null,"twd":183,"u":null,"d":"12/24","n":"原晶"},{"s":"sample","q":null,"rmb":null,"twd":201,"u":null,"d":"1/14","n":"原晶"},{"s":"運費","q":null,"rmb":null,"twd":188,"u":null,"d":"1/19","n":null},{"s":"sample","q":null,"rmb":null,"twd":755,"u":null,"d":"2/6","n":"藝佰/榮玉"},{"s":"運費","q":null,"rmb":null,"twd":340,"u":null,"d":"2/11","n":null},{"s":"打樣-第1次","q":null,"rmb":400,"twd":2141,"u":null,"d":"2/26","n":"藝佰"},{"s":"運費","q":null,"rmb":null,"twd":171,"u":null,"d":"2/11","n":null},{"s":"大貨","q":1500,"rmb":18900,"twd":88074,"u":59,"d":"3/17","n":"原¥19,200，扣打樣費¥300"},{"s":"運費(到集運)","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":"4/15出貨，7件*200pcs+1件*100pcs，共8件；4/16到集運，總重110kg"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":5280,"u":null,"d":"4/16","n":"寄到公司"},{"s":"關稅","q":null,"rmb":null,"twd":412,"u":null,"d":"4/20","n":"4/21抵達台灣"}],"note":null,"year":2026},{"name":"(母親節) 皮革花朵隨身鏡","total":70031,"unit":23.34,"items":[{"s":"sample","q":null,"rmb":null,"twd":63,"u":null,"d":"12/24","n":null},{"s":"打樣-第1次","q":null,"rmb":100,"twd":531,"u":null,"d":"1/19","n":null},{"s":"運費","q":null,"rmb":null,"twd":169,"u":null,"d":"1/26","n":null},{"s":"大貨","q":2500,"rmb":11400,"twd":53124,"u":21,"d":"3/17","n":"4.6*2500=11500元，扣打樣費¥100"},{"s":"追加","q":500,"rmb":2300,"twd":10626,"u":null,"d":"3/18","n":null},{"s":"運費(到集運)","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":"3/30出貨 4件500pcs+2件*450pcs+1件*100pcs；4/2到集運，總重110kg"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":220,"u":null,"d":"4/2","n":"100pcs(4kg)4/9到公司"},{"s":"關稅","q":null,"rmb":null,"twd":40,"u":null,"d":null,"n":"集運包稅費用"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":4770,"u":null,"d":"4/14","n":"2900pcs(106kg)運送至易網通"},{"s":"關稅","q":null,"rmb":null,"twd":488,"u":null,"d":"4/18","n":"4/20到易網通"}],"note":null,"year":2026},{"name":"(母親節) 淨淨刺繡兩用保溫袋","total":95970,"unit":95.97,"items":[{"s":"sample","q":null,"rmb":null,"twd":234,"u":null,"d":"11/18","n":null},{"s":"打樣-第1次","q":null,"rmb":200,"twd":1062,"u":null,"d":"1/19","n":null},{"s":"(未標示)","q":null,"rmb":null,"twd":338,"u":null,"d":"1/19","n":null},{"s":"運費","q":null,"rmb":null,"twd":128,"u":null,"d":"1/28","n":null},{"s":"大貨","q":1000,"rmb":16300,"twd":75958,"u":76,"d":"3/17","n":"原¥16,500，扣打樣費¥200"},{"s":"運費(到集運)","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":"4/1出貨，8件*125pcs"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":17487,"u":null,"d":"4/9","n":"4/2到集運，總重272.5kg"},{"s":"關稅","q":null,"rmb":null,"twd":763,"u":null,"d":"4/11","n":"4/14到易網通"}],"note":null,"year":2026},{"name":"淨淨識別證掛繩","total":3851,"unit":38.51,"items":[{"s":"sample","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":null},{"s":"打樣-第1次","q":null,"rmb":100,"twd":539,"u":null,"d":"3/3","n":null},{"s":"運費","q":null,"rmb":null,"twd":171,"u":null,"d":"3/11","n":null},{"s":"關稅","q":null,"rmb":null,"twd":53,"u":null,"d":"3/11","n":null},{"s":"大貨","q":100,"rmb":600,"twd":2796,"u":28,"d":"3/17","n":"原¥700，扣打樣費¥100"},{"s":"運費(到集運)","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":"3/28出貨，1箱重4.15kg，3/30到集運"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":247,"u":null,"d":"4/2","n":"4/9到公司"},{"s":"關稅","q":null,"rmb":null,"twd":45,"u":null,"d":"4/2","n":"集運包稅費用"}],"note":null,"year":2026},{"name":"淨淨手提開窗盥洗包 第3批","total":122424,"unit":40.81,"items":[{"s":"(備註)","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":"交期約35天"},{"s":"大貨","q":3000,"rmb":21450,"twd":101769,"u":34,"d":"3/17","n":"買即可(代採購)"},{"s":"(備註)","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":"4/21出貨，4/22抵達集運"},{"s":"運費(到集運)","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":"31件*100pcs，總重459kg到義烏倉"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":6660,"u":null,"d":"6/25","n":"10件*100pcs，6/30到易網通"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":6660,"u":null,"d":"6/29","n":"10件*100pcs，7/2到易網通"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":6660,"u":null,"d":"7/2","n":"10件*100pcs，7/6到易網通"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":675,"u":null,"d":"7/27","n":"1件*100pcs，7/30到易網通"},{"s":"關稅","q":null,"rmb":null,"twd":1193,"u":null,"d":"6/28","n":null},{"s":"關稅","q":null,"rmb":null,"twd":477,"u":null,"d":"7/1","n":null},{"s":"關稅","q":null,"rmb":null,"twd":820,"u":null,"d":"7/6","n":null}],"note":"補第1批髒汙100個","year":2026},{"name":"淨淨摺疊拖輪包","total":138434,"unit":461.45,"items":[{"s":"sample","q":null,"rmb":null,"twd":1716,"u":null,"d":"3/20","n":null},{"s":"運費","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":null},{"s":"打樣-第1次","q":null,"rmb":null,"twd":2493,"u":null,"d":"3/27","n":null},{"s":"運費","q":null,"rmb":null,"twd":504,"u":null,"d":"4/16","n":null},{"s":"打樣-平陽小黃","q":null,"rmb":800,"twd":3703,"u":null,"d":"4/17","n":"小飛支付寶代付款"},{"s":"打樣-溫州初城","q":null,"rmb":1000,"twd":4622,"u":null,"d":"4/17","n":"小飛支付寶代付款"},{"s":"運費","q":null,"rmb":null,"twd":470,"u":null,"d":"4/28","n":null},{"s":"關稅","q":null,"rmb":null,"twd":179,"u":null,"d":"4/28","n":null},{"s":"大貨","q":300,"rmb":22100,"twd":104163,"u":347,"d":"4/30","n":"原¥22,800，扣打樣費¥700"},{"s":"運費(到集運)","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":"5/7出貨，5/9抵達集運倉，30件*10pcs=300pcs，總重497kg到義烏倉"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":6289,"u":null,"d":"5/12","n":"限制商業個人件，1次10件"},{"s":"關稅","q":null,"rmb":null,"twd":446,"u":null,"d":"5/15","n":"5/15，10件100pcs到立達街"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":6308,"u":null,"d":"5/14","n":null},{"s":"關稅","q":null,"rmb":null,"twd":820,"u":null,"d":"5/18","n":"5/19，10件100pcs到易網通"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":6270,"u":null,"d":"5/20","n":null},{"s":"關稅","q":null,"rmb":null,"twd":451,"u":null,"d":"5/25","n":"5/25，10件100pcs到易網通"}],"note":null,"year":2026},{"name":"洗衣袋霧透夾鏈袋（批次一）","total":18699,"unit":3.16,"items":[{"s":"大貨-1688下單","q":5000,"rmb":3000,"twd":15225,"u":3,"d":"7/2","n":"扣除版費405，1688下單刷卡"},{"s":"(追加)","q":910,"rmb":546,"twd":2613,"u":3,"d":null,"n":"總生產數量5,910"},{"s":"運費(到洗衣袋廠商)","q":null,"rmb":180,"twd":861,"u":null,"d":null,"n":"7/18出貨至洗衣袋廠商"}],"note":null,"year":2026},{"name":"淨淨刺繡高質感洗衣袋(6件組) 第6批","total":383488,"unit":76.7,"items":[{"s":"大貨-1688下單","q":5000,"rmb":80000,"twd":383488,"u":77,"d":"7/3","n":"買即可(代採購)"},{"s":"運費(到集運)","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":"到義烏倉"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":null},{"s":"關稅","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":null}],"note":null,"year":2026},{"name":"淨淨小花提袋","total":38131,"unit":76.26,"items":[{"s":"sample","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":null},{"s":"打樣-第1次","q":null,"rmb":193,"twd":976,"u":null,"d":"6/26","n":"1688下單刷卡"},{"s":"運費","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":null},{"s":"大貨-1688下單","q":500,"rmb":7600,"twd":37155,"u":74,"d":"8/4","n":"買即可(代採購)"},{"s":"運費(到集運)","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":"到義烏倉"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":null},{"s":"關稅","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":null}],"note":null,"year":2026},{"name":"淨淨摺疊收納小圓扇","total":21674,"unit":10.84,"items":[{"s":"sample","q":null,"rmb":null,"twd":135,"u":null,"d":null,"n":"共3家樣品"},{"s":"運費","q":null,"rmb":null,"twd":178,"u":null,"d":null,"n":null},{"s":"打樣-辰絲","q":null,"rmb":null,"twd":1010,"u":null,"d":"7/14","n":"打樣2款"},{"s":"打樣-鑫庫","q":null,"rmb":null,"twd":1010,"u":null,"d":"7/14","n":"打樣2款"},{"s":"打樣-坨坨","q":null,"rmb":null,"twd":300,"u":null,"d":"7/28","n":"打樣2款"},{"s":"運費","q":null,"rmb":null,"twd":195,"u":null,"d":"7/31","n":"鑫庫2次打樣布面"},{"s":"運費","q":null,"rmb":null,"twd":210,"u":null,"d":"8/4","n":"坨坨"},{"s":"大貨-鑫庫1688下單","q":2000,"rmb":3400,"twd":16679,"u":8,"d":"8/4","n":"買即可(代採購)"},{"s":"運費(到集運)","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":"到義烏倉，4件*500=2000個，總重52kg"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":1957,"u":null,"d":"8/13","n":null},{"s":"關稅","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":"預計9/7-9/11送至易網通"}],"note":null,"year":2026},{"name":"淨淨IP飲料提袋","total":5094,"unit":null,"items":[{"s":"sample","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":null},{"s":"打樣-織云","q":null,"rmb":600,"twd":3025,"u":null,"d":"6/23","n":"1688下單刷卡，7/1第1次打樣，7/7第2次打樣"},{"s":"打樣-漫航星夢","q":null,"rmb":400,"twd":1874,"u":null,"d":"7/1","n":"小飛支付寶代付款"},{"s":"運費","q":null,"rmb":null,"twd":195,"u":null,"d":"7/30","n":null},{"s":"大貨","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":null},{"s":"運費(到集運)","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":null},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":null},{"s":"關稅","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":null}],"note":"大貨尚未下單，單價暫無法計算 (#DIV/0!)","year":2026},{"name":"淨淨手提開窗盥洗包 第4批","total":1820,"unit":null,"items":[{"s":"sample","q":null,"rmb":null,"twd":404,"u":"7/7","d":null,"n":"正貨寄給新廠商，7/9抵達"},{"s":"打樣-第1次","q":null,"rmb":300,"twd":1416,"u":"7/9","d":null,"n":"預計7/16打樣完成"},{"s":"運費","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":null},{"s":"大貨","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":null},{"s":"運費(到集運)","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":null},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":null},{"s":"關稅","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":null}],"note":"大貨尚未下單，單價暫無法計算 (#DIV/0!)","year":2026},{"name":"淨淨洗碗刷","total":102,"unit":null,"items":[{"s":"sample","q":null,"rmb":null,"twd":102,"u":null,"d":"7/9","n":null},{"s":"打樣-第1次","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":null},{"s":"運費","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":null},{"s":"大貨","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":null}],"note":"大貨尚未下單，單價暫無法計算 (#DIV/0!)","year":2026},{"name":"淨淨圓形招牌磁鐵","total":65311,"unit":61.04,"items":[{"s":"打樣","q":null,"rmb":100,"twd":484,"u":null,"d":"2/6","n":null},{"s":"運費","q":null,"rmb":null,"twd":188,"u":null,"d":null,"n":null},{"s":"大貨-Taobao下單","q":1070,"rmb":13806,"twd":63429,"u":59,"d":null,"n":null},{"s":"運費(到集運)","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":null},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":1210,"u":null,"d":"3/3","n":null},{"s":"關稅","q":null,"rmb":null,"twd":0,"u":null,"d":null,"n":null}],"note":null,"year":2025},{"name":"(母親節) 淨淨花邊沐浴球","total":78339,"unit":15.67,"items":[{"s":"sample","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":null},{"s":"打樣-第1次","q":null,"rmb":200,"twd":906,"u":null,"d":null,"n":null},{"s":"運費","q":null,"rmb":null,"twd":188,"u":null,"d":null,"n":null},{"s":"大貨-1688下單","q":5000,"rmb":12800,"twd":60885,"u":12,"d":"3/11","n":null},{"s":"運費(到集運)","q":null,"rmb":null,"twd":null,"u":null,"d":"4/5","n":"3/26發貨，預計到貨4/3，包國內運費"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":14310,"u":null,"d":"4/8","n":"一箱200入，共25箱，總重318公斤"},{"s":"關稅","q":null,"rmb":null,"twd":2050,"u":null,"d":"4/14","n":"到易網通"}],"note":null,"year":2025},{"name":"(母親節) 棉花針織手腕袋","total":117536,"unit":39.18,"items":[{"s":"sample","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":null},{"s":"打樣-洛陽九九","q":null,"rmb":400,"twd":1816,"u":null,"d":"2/19","n":null},{"s":"運費","q":null,"rmb":23,"twd":103,"u":null,"d":null,"n":null},{"s":"打樣-鑫達","q":null,"rmb":300,"twd":1362,"u":null,"d":"2/19","n":null},{"s":"運費","q":null,"rmb":0,"twd":0,"u":null,"d":null,"n":null},{"s":"大貨-1688下單","q":3000,"rmb":19600,"twd":89376,"u":30,"d":"3/18","n":"1CNY=4.56TWD"},{"s":"運費(到集運)","q":null,"rmb":null,"twd":null,"u":null,"d":"3/27","n":"包國內運費"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":21300,"u":null,"d":"4/1","n":"一袋300入，共10袋，總重440公斤"},{"s":"關稅","q":null,"rmb":null,"twd":3579,"u":null,"d":"4/9","n":"到易網通"}],"note":null,"year":2025},{"name":"洗衣袋霧透夾鏈袋（批次二）","total":23348,"unit":4.46,"items":[{"s":"大貨-1688下單","q":5000,"rmb":3405,"twd":15527,"u":3,"d":"3/18","n":"1CNY=4.56TWD"},{"s":"(追加)","q":230,"rmb":153,"twd":698,"u":null,"d":"4/7","n":null},{"s":"運費(到集運)","q":null,"rmb":165,"twd":753,"u":null,"d":"4/7","n":"1,225入送至洗衣袋廠商"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":6165,"u":null,"d":"4/15","n":"2000入2箱，1500入1箱，總重137公斤"},{"s":"關稅","q":null,"rmb":null,"twd":205,"u":null,"d":"4/21","n":null}],"note":null,"year":2025},{"name":"淨淨刺繡高質感洗衣袋(6件組) 第2批","total":95290,"unit":95.29,"items":[{"s":"大貨-1688下單","q":1000,"rmb":16350,"twd":78317,"u":78,"d":"3/20","n":"愛購網代付"},{"s":"運費(到集運)","q":null,"rmb":null,"twd":null,"u":null,"d":"4/14","n":"到義烏倉"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":13685,"u":null,"d":"4/15","n":"25套/箱，共40箱，總重391公斤"},{"s":"關稅","q":null,"rmb":null,"twd":3288,"u":null,"d":"4/21","n":null}],"note":null,"year":2025},{"name":"淨淨VIP化妝包","total":19346,"unit":null,"items":[{"s":"sample","q":null,"rmb":210,"twd":950,"u":null,"d":"3/11","n":null},{"s":"運費","q":null,"rmb":null,"twd":491,"u":null,"d":null,"n":"3/17到貨"},{"s":"關稅","q":null,"rmb":null,"twd":45,"u":null,"d":null,"n":null},{"s":"打樣-起嘉包袋(2款)","q":null,"rmb":1800,"twd":8208,"u":null,"d":"3/31","n":"追進度(交期9-18天)，4/16第一次"},{"s":"運費","q":null,"rmb":null,"twd":313,"u":null,"d":"4/23","n":null},{"s":"打樣-華勝隆","q":null,"rmb":2000,"twd":9120,"u":null,"d":"4/10","n":null},{"s":"運費","q":null,"rmb":null,"twd":219,"u":null,"d":"4/28","n":null},{"s":"大貨","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":"暫停"}],"note":"專案暫停，單價暫無法計算 (#DIV/0!)","year":2025},{"name":"淨淨手提開窗盥洗包 第1批","total":111983,"unit":37.33,"items":[{"s":"sample","q":null,"rmb":null,"twd":546,"u":null,"d":"4/7","n":"3款樣品+運費"},{"s":"sample運費","q":null,"rmb":null,"twd":189,"u":null,"d":"4/14","n":"手提白色皮質包"},{"s":"sample運費","q":null,"rmb":null,"twd":189,"u":null,"d":"4/16","n":"網紗包*3"},{"s":"打樣-第1次","q":null,"rmb":100,"twd":945,"u":null,"d":"4/22","n":"交期5-15天"},{"s":"運費","q":null,"rmb":null,"twd":189,"u":null,"d":"4/29","n":null},{"s":"運費(樣品寄回中國)","q":null,"rmb":null,"twd":367,"u":null,"d":"5/8","n":null},{"s":"運費(拉鍊寄回中國)","q":null,"rmb":null,"twd":332,"u":null,"d":"6/4","n":null},{"s":"大貨-訂金","q":3000,"rmb":6300,"twd":28112,"u":30,"d":"5/9","n":"打樣5/22到貨"},{"s":"大貨-尾款","q":null,"rmb":15200,"twd":63080,"u":null,"d":"7/2","n":"預計7/3發貨，預估7/14～7/20抵達台灣"},{"s":"運費(到集運)","q":null,"rmb":null,"twd":null,"u":null,"d":"7/7","n":"100入/箱，共30箱，總重462kg"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":16170,"u":null,"d":"7/15","n":"預計7/18-7/21到貨"},{"s":"關稅","q":null,"rmb":null,"twd":1864,"u":null,"d":"7/18","n":"到易網通"}],"note":null,"year":2025},{"name":"淨淨大容量兩用泡芙包","total":79230,"unit":158.46,"items":[{"s":"sample","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":null},{"s":"打樣-第1次","q":null,"rmb":300,"twd":1296,"u":null,"d":"5/9","n":"5/16到貨"},{"s":"運費","q":null,"rmb":null,"twd":265,"u":null,"d":null,"n":null},{"s":"大貨-1688","q":500,"rmb":16350,"twd":68670,"u":137,"d":"6/16","n":"預計7/8出貨，預估7/18～7/24抵達台灣"},{"s":"運費(到集運)","q":null,"rmb":null,"twd":null,"u":null,"d":"7/8","n":"30入*16箱，20入*1箱，共17箱，總重195kg"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":7325,"u":null,"d":"8/13","n":"暫放集運，待8月中出貨"},{"s":"關稅","q":null,"rmb":null,"twd":1674,"u":null,"d":"8/19","n":"預計8/16-8/22到貨"}],"note":null,"year":2025},{"name":"淨淨刺繡高質感洗衣袋(6件組) 第3批","total":84313,"unit":84.31,"items":[{"s":"大貨-1688下單","q":1000,"rmb":16350,"twd":68670,"u":69,"d":"8/1","n":"飛代付"},{"s":"運費(到集運)","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":"預計8/20-8/25出貨，到義烏倉"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":12775,"u":null,"d":"8/22","n":"30套/箱*30+33套/箱*2+34套/箱，共33箱，總重365kg"},{"s":"關稅","q":null,"rmb":null,"twd":2868,"u":null,"d":"8/28","n":"到易網通"}],"note":null,"year":2025},{"name":"淨淨QQ造型便利貼","total":117395,"unit":16.77,"items":[{"s":"sample","q":null,"rmb":null,"twd":103,"u":null,"d":null,"n":null},{"s":"打樣-第1次","q":null,"rmb":300,"twd":0,"u":null,"d":"8/15","n":"廠商失聯"},{"s":"打樣-換廠商第1次","q":null,"rmb":1800,"twd":8911,"u":null,"d":"9/10","n":"刷卡，9/25前出貨"},{"s":"模具費","q":null,"rmb":800,"twd":null,"u":null,"d":null,"n":"加進大貨費用計算"},{"s":"運費","q":null,"rmb":null,"twd":121,"u":null,"d":"9/25","n":null},{"s":"關稅","q":null,"rmb":null,"twd":0,"u":null,"d":null,"n":null},{"s":"大貨","q":7000,"rmb":21940,"twd":99579,"u":14,"d":"9/26","n":"買即可(代採購)"},{"s":"運費(到集運)","q":null,"rmb":null,"twd":null,"u":null,"d":"10/27","n":"D30，預計10/20-10/26出貨"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":8148,"u":null,"d":"10/28","n":"270入*25箱，250入*1箱，共26箱，總重291kg"},{"s":"關稅","q":null,"rmb":null,"twd":533,"u":null,"d":"11/4","n":"到易網通"}],"note":null,"year":2025},{"name":"淨淨輕便鋁合金摺疊椅","total":126337,"unit":126.34,"items":[{"s":"sample","q":null,"rmb":84,"twd":375,"u":null,"d":"5/19","n":"廠商1"},{"s":"sample","q":null,"rmb":20,"twd":84,"u":null,"d":"8/8","n":"廠商2"},{"s":"打樣-第1次","q":null,"rmb":200,"twd":987,"u":null,"d":"8/21","n":"D10，9/15追進度"},{"s":"運費","q":null,"rmb":null,"twd":275,"u":null,"d":"9/11","n":null},{"s":"大貨-1688","q":1000,"rmb":24800,"twd":112559,"u":113,"d":"9/15","n":"買即可(代採購)"},{"s":"運費(到集運)","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":"10/15到集運"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":10360,"u":null,"d":"10/15","n":"50入/箱，共20箱，總重370公斤"},{"s":"關稅","q":null,"rmb":null,"twd":1697,"u":null,"d":"10/17","n":null}],"note":null,"year":2025},{"name":"淨淨刺繡高質感洗衣袋(6件組) 第4批-1（2,000組）","total":169501,"unit":84.75,"items":[{"s":"大貨-1688下單","q":2000,"rmb":35970,"twd":142245,"u":71,"d":"9/9","n":"飛下定付款"},{"s":"運費(到集運)","q":null,"rmb":null,"twd":null,"u":null,"d":"10/7","n":"先出貨2,000組"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":25130,"u":null,"d":"10/13","n":"32組/箱*62，16組/箱*1，共63箱，總重718公斤"},{"s":"關稅","q":null,"rmb":null,"twd":2126,"u":null,"d":"10/17","n":null}],"note":null,"year":2025},{"name":"淨淨刺繡高質感洗衣袋(6件組) 第4批-2（200組）","total":17231,"unit":86.16,"items":[{"s":"大貨-1688下單","q":200,"rmb":3270,"twd":14225,"u":71,"d":"9/9","n":"飛下定付款"},{"s":"運費(到集運)","q":null,"rmb":null,"twd":null,"u":null,"d":"10/22","n":"200組另外出貨"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":2502,"u":null,"d":"10/23","n":"34組/箱*2+33組/箱*4，共6箱，總重72kg"},{"s":"關稅","q":null,"rmb":null,"twd":504,"u":null,"d":"10/30","n":"到易網通"}],"note":null,"year":2025},{"name":"洗衣袋霧透夾鏈袋（批次三）","total":15431,"unit":2.88,"items":[{"s":"大貨-1688下單","q":5000,"rmb":3000,"twd":13738,"u":3,"d":"9/22","n":"扣除版費405"},{"s":"(追加)","q":350,"rmb":210,"twd":1693,"u":null,"d":null,"n":"正確數量待發貨前確認"},{"s":"運費(到洗衣袋廠商)","q":null,"rmb":182,"twd":1693,"u":null,"d":null,"n":"10/11出貨至洗衣袋廠商"}],"note":null,"year":2025},{"name":"淨淨刺繡高質感洗衣袋(6件組) 第5批-1","total":218237,"unit":87.43,"items":[{"s":"大貨-1688下單","q":2496,"rmb":81750,"twd":185222,"u":74,"d":"9/24","n":"買即可(代採購)"},{"s":"運費(到集運)","q":null,"rmb":null,"twd":null,"u":null,"d":"11/10","n":"到義烏倉"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":26096,"u":null,"d":"11/19","n":"32組/箱*147，33組/箱*9，共156箱，總重1,869kg"},{"s":"關稅","q":null,"rmb":null,"twd":6919,"u":null,"d":"11/24","n":"第一批32組/箱*78，11/24到易網通"}],"note":"分2批送至易網通","year":2025},{"name":"淨淨刺繡高質感洗衣袋(6件組) 第5批-2","total":227828,"unit":90.99,"items":[{"s":"大貨-1688下單","q":2504,"rmb":81750,"twd":185816,"u":74,"d":"9/24","n":"買即可(代採購)"},{"s":"運費(到集運)","q":null,"rmb":null,"twd":null,"u":null,"d":"11/10","n":"到義烏倉"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":null,"u":null,"d":"11/19","n":"32組/箱*147，33組/箱*9，共156箱，總重1,869kg"},{"s":"關稅","q":null,"rmb":null,"twd":null,"u":null,"d":"11/24","n":"第一批32組/箱*78，11/24到易網通"},{"s":"運費(到台灣) 1)","q":null,"rmb":null,"twd":4674,"u":null,"d":"7/6","n":"9件*33+1件*32=329組，7/9到易網通"},{"s":"運費(到台灣) 2)","q":null,"rmb":null,"twd":4560,"u":null,"d":"7/7","n":"10件*32=320組，7/14到易網通"},{"s":"運費(到台灣) 3)","q":null,"rmb":null,"twd":4560,"u":null,"d":"7/15","n":"10件*32=320組，7/18到易網通"},{"s":"運費(到台灣) 4)","q":null,"rmb":null,"twd":4560,"u":null,"d":"7/15","n":"10件*32=320組，7/21到易網通"},{"s":"運費(到台灣) 5)","q":null,"rmb":null,"twd":4560,"u":null,"d":"7/16","n":"10件*32=320組，7/23到易網通"},{"s":"運費(到台灣) 6)","q":null,"rmb":null,"twd":4560,"u":null,"d":"7/17","n":"10件*32=320組，7/27到易網通"},{"s":"運費(到台灣) 7)","q":null,"rmb":null,"twd":4560,"u":null,"d":"7/18","n":"10件*32=320組，7/28到易網通"},{"s":"運費(到台灣) 8)","q":null,"rmb":null,"twd":3648,"u":null,"d":"7/19","n":"8件*32=256組，7/28到易網通"},{"s":"關稅 1)","q":null,"rmb":null,"twd":822,"u":null,"d":"7/7","n":null},{"s":"關稅 2)","q":null,"rmb":null,"twd":822,"u":null,"d":"7/12","n":null},{"s":"關稅 3)","q":null,"rmb":null,"twd":740,"u":null,"d":"7/17","n":null},{"s":"關稅 4)","q":null,"rmb":null,"twd":822,"u":null,"d":"7/18","n":null},{"s":"關稅 5)","q":null,"rmb":null,"twd":822,"u":null,"d":"7/21","n":null},{"s":"關稅 6)","q":null,"rmb":null,"twd":822,"u":null,"d":"7/23","n":null},{"s":"關稅 7)","q":null,"rmb":null,"twd":658,"u":null,"d":"7/27","n":null}],"note":null,"year":2025},{"name":"壓克力造型萬用夾 3入1組","total":null,"unit":null,"items":[{"s":"打樣-第1次","q":null,"rmb":80,"twd":365,"u":null,"d":"9/23","n":"9/30廠商寄出"},{"s":"運費","q":null,"rmb":null,"twd":178,"u":null,"d":"10/2","n":null},{"s":"打樣-第2次","q":null,"rmb":80,"twd":404,"u":null,"d":"10/22","n":null},{"s":"運費","q":null,"rmb":null,"twd":178,"u":null,"d":"10/30","n":null}],"note":"來源試算表在此列後被截斷，尚未讀到「大貨」與「總金額」列，此項目價格為不完整資料","year":2025},{"name":"淨淨皮革圓形捲尺","total":171999,"unit":24.57,"items":[{"s":"sample運費","q":null,"rmb":null,"twd":170,"u":null,"d":"8/2","n":null},{"s":"打樣-第1家","q":null,"rmb":300,"twd":1356,"u":null,"d":"8/15","n":null},{"s":"運費","q":null,"rmb":null,"twd":170,"u":null,"d":"8/28","n":null},{"s":"打樣-第2家","q":null,"rmb":200,"twd":904,"u":null,"d":"9/2","n":null},{"s":"運費+關稅","q":null,"rmb":null,"twd":231,"u":null,"d":"9/6","n":null},{"s":"大貨-1688下單","q":7000,"rmb":35000,"twd":161000,"u":23,"d":"9/18","n":null},{"s":"運費(到集運)","q":null,"rmb":0,"twd":null,"u":null,"d":null,"n":"10/7出貨，運費廠商出"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":7733,"u":null,"d":"10/14","n":"500個/箱*14箱=7,000個，送至易網通"},{"s":"關稅","q":null,"rmb":null,"twd":435,"u":null,"d":"10/19","n":"贈品關稅"}],"note":null,"year":2024},{"name":"淨淨旅行掛勾盥洗包","total":253188,"unit":41.17,"items":[{"s":"sample","q":null,"rmb":20,"twd":91,"u":null,"d":"8/1","n":null},{"s":"打樣-第1次","q":null,"rmb":600,"twd":2712,"u":null,"d":"8/15","n":null},{"s":"運費+關稅","q":null,"rmb":null,"twd":541,"u":null,"d":"8/22","n":null},{"s":"打樣-第2次","q":null,"rmb":0,"twd":null,"u":null,"d":null,"n":null},{"s":"運費","q":null,"rmb":0,"twd":null,"u":null,"d":null,"n":"廠商付款"},{"s":"大貨-簽合同","q":6000,"rmb":42600,"twd":null,"u":34,"d":null,"n":"合約編號201,801"},{"s":"訂金","q":null,"rmb":12180,"twd":67014,"u":null,"d":"9/11","n":null},{"s":"尾款","q":null,"rmb":29820,"twd":134787,"u":null,"d":"10/16","n":null},{"s":"追加","q":150,"rmb":710,"twd":3209,"u":null,"d":null,"n":"尾款+追加+中國運費共141,951"},{"s":"運費(到集運)","q":null,"rmb":875,"twd":3955,"u":null,"d":null,"n":"預計10/10出貨"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":33269,"u":null,"d":null,"n":"100個/箱*61箱=6,100個，送至易網通"},{"s":"關稅","q":null,"rmb":null,"twd":7610,"u":null,"d":"10/28","n":"6,100個關稅"},{"s":"關稅","q":null,"rmb":null,"twd":72,"u":null,"d":null,"n":"50個送至立達街146號"}],"note":null,"year":2024},{"name":"淨淨刺繡高質感洗衣袋(6件組)（第7批）","total":97344,"unit":97.34,"items":[{"s":"sample","q":null,"rmb":22,"twd":99,"u":null,"d":"8/1","n":null},{"s":"打樣-第1次","q":null,"rmb":300,"twd":1356,"u":null,"d":"8/15","n":null},{"s":"運費","q":null,"rmb":null,"twd":188,"u":null,"d":"8/28","n":null},{"s":"打樣-第2次","q":null,"rmb":0,"twd":null,"u":null,"d":null,"n":null},{"s":"運費","q":null,"rmb":null,"twd":188,"u":null,"d":null,"n":"白白付款，金額待確認"},{"s":"大貨-1688合同","q":1000,"rmb":16350,"twd":76557,"u":77,"d":"9/9","n":"側標更換電繡/OPP袋改夾鏈袋"},{"s":"運費(到集運)","q":null,"rmb":560,"twd":2714,"u":null,"d":"10/1","n":"9/29出貨，運費原860-300打樣費"},{"s":"運費(到台灣)","q":null,"rmb":null,"twd":13889,"u":null,"d":"10/7","n":"28套/箱*35箱=980個，送至易網通"},{"s":"關稅","q":null,"rmb":null,"twd":2353,"u":null,"d":"10/14","n":"980套關稅"},{"s":"關稅","q":null,"rmb":null,"twd":63,"u":null,"d":null,"n":"20套送至立達街146號"}],"note":null,"year":2024},{"name":"淨淨質感刺繡圍裙","total":173880,"unit":144.9,"items":[{"s":"合約總金額","q":1200,"rmb":null,"twd":173880,"u":145,"d":null,"n":"台灣廠商"},{"s":"訂金","q":null,"rmb":null,"twd":10966,"u":null,"d":"9/9","n":null},{"s":"尾款","q":null,"rmb":null,"twd":162914,"u":null,"d":"10/21","n":null},{"s":"費用含單一地點運送","q":null,"rmb":null,"twd":null,"u":null,"d":null,"n":"10/21出貨"}],"note":null,"year":2024}];
+
+let state = JSON.parse(JSON.stringify(PRODUCTS_INITIAL));
+let editMode = false;
+let dirty = false;
+let saving = false;
+let expandedAll = false;
+
+const fmtTWD = n => (n === null || n === undefined || n === "") ? null : "NT$" + Math.round(n).toLocaleString("en-US");
+const fmtRMB = n => (n === null || n === undefined || n === "") ? null : "¥" + Math.round(n).toLocaleString("en-US");
+const fmtQty = n => (n === null || n === undefined || n === "") ? null : Math.round(n).toLocaleString("en-US");
+const esc = s => (s === null || s === undefined) ? "" : String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toast._h);
+  toast._h = setTimeout(() => t.classList.remove("show"), 2600);
+}
+
+/* ---------------- VIEW MODE RENDER ---------------- */
+
+function cell(content, cls) {
+  if (content === null || content === undefined || content === "") return `<td class="${cls||''} empty">—</td>`;
+  return `<td class="${cls||''}">${content}</td>`;
+}
+
+function renderItemsTable(p) {
+  const rows = (p.items || []).map(it => `
+    <tr>
+      ${cell(esc(it.s), "stage")}
+      ${cell(fmtQty(it.q), "num")}
+      ${cell(fmtRMB(it.rmb), "num")}
+      ${cell(fmtTWD(it.twd), "num")}
+      ${cell(it.u !== null && typeof it.u === "number" ? fmtTWD(it.u) : (it.u ? esc(it.u) : null), "num")}
+      ${cell(esc(it.d), "date")}
+      ${cell(esc(it.n), "note")}
+    </tr>`).join("");
+
+  const totalUnit = (p.unit === null || p.unit === undefined || p.unit === "") ? "#DIV/0!" : "NT$" + Number(p.unit).toFixed(2);
+  const unitEmphasisCls = (p.unit === null || p.unit === undefined || p.unit === "") ? "num" : "num unit-emphasis";
+
+  return `
+    <div class="table-scroll">
+      <table class="items">
+        <thead><tr>
+          <th>階段 / 項目</th><th class="num">數量</th><th class="num">人民幣</th>
+          <th class="num">台幣金額</th><th class="num">台幣單價</th><th>日期</th><th>備註</th>
+        </tr></thead>
+        <tbody>
+          ${rows}
+          <tr class="total-row">
+            <td>總金額</td><td class="num"></td><td class="num"></td>
+            <td class="num">${(p.total !== null && p.total !== undefined && p.total !== "") ? fmtTWD(p.total) : "—"}</td>
+            <td class="${unitEmphasisCls}">${totalUnit}</td><td></td><td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function renderCardView(p, idx) {
+  const unitMissing = (p.unit === null || p.unit === undefined || p.unit === "");
+  const unitDisplay = unitMissing
+    ? `<div class="price-primary missing">尚無單價</div>`
+    : `<div class="price-primary">NT$${Number(p.unit).toFixed(2)}<span class="unit-suffix">/單位</span></div>`;
+  const totalDisplay = (p.total !== null && p.total !== undefined && p.total !== "")
+    ? `<span class="price-secondary">總額 ${fmtTWD(p.total)}</span>`
+    : `<span class="price-secondary">總額 資料不完整</span>`;
+  const noteBlock = p.note ? `<div class="card-note">${esc(p.note)}</div>` : "";
+  const open = expandedAll ? "open" : "";
+
+  return `
+  <details class="card" data-idx="${idx}" data-year="${p.year}" data-name="${esc((p.name||'').toLowerCase())}" ${open}>
+    <summary>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="9 6 15 12 9 18"/></svg>
+      <span class="card-name">${esc(p.name) || "（未命名產品）"}</span>
+      <span class="card-meta"><span class="chip">${(p.items||[]).length} 筆明細</span></span>
+      <span class="price-block">
+        ${unitDisplay}
+        ${totalDisplay}
+      </span>
+    </summary>
+    <div class="card-body">
+      ${noteBlock}
+      ${renderItemsTable(p)}
+    </div>
+  </details>`;
+}
+
+function groupedIndexesByYear() {
+  const idxs = state.map((p, i) => i);
+  idxs.sort((a, b) => (state[b].year||0) - (state[a].year||0));
+  return idxs;
+}
+
+function renderView() {
+  const list = document.getElementById("list");
+  const order = groupedIndexesByYear();
+  let html = "";
+  let lastYear = null;
+  order.forEach(idx => {
+    const p = state[idx];
+    if (p.year !== lastYear) {
+      html += `<div class="section-label" data-section-year="${p.year}">年度：${esc(p.year)}</div>`;
+      lastYear = p.year;
+    }
+    html += renderCardView(p, idx);
+  });
+  list.innerHTML = html;
+  document.getElementById("addActions").style.display = "none";
+  applyFilters();
+}
+
+/* ---------------- EDIT MODE RENDER ---------------- */
+
+function editField(label, cls, attrs) {
+  return `<div class="edit-field ${cls}"><label>${label}</label>${attrs}</div>`;
+}
+
+function renderItemsEdit(p, pIdx) {
+  const rows = (p.items || []).map((it, iIdx) => `
+    <tr data-item-idx="${iIdx}">
+      <td><input class="ipt" data-field="s" value="${esc(it.s)}" placeholder="階段"></td>
+      <td><input class="ipt mono" type="number" data-field="q" value="${it.q ?? ""}" placeholder="數量"></td>
+      <td><input class="ipt mono" type="number" data-field="rmb" value="${it.rmb ?? ""}" placeholder="¥"></td>
+      <td><input class="ipt mono" type="number" data-field="twd" value="${it.twd ?? ""}" placeholder="NT$"></td>
+      <td><input class="ipt mono" data-field="u" value="${it.u ?? ""}" placeholder="單價"></td>
+      <td><input class="ipt mono" data-field="d" value="${esc(it.d)}" placeholder="日期"></td>
+      <td><input class="ipt" data-field="n" value="${esc(it.n)}" placeholder="備註"></td>
+      <td><button class="row-del" data-action="del-item" title="刪除此列">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+      </button></td>
+    </tr>`).join("");
+
+  return `
+    <div class="table-scroll">
+      <table class="items-edit-table">
+        <colgroup><col class="c-stage"><col class="c-qty"><col class="c-rmb"><col class="c-twd"><col class="c-unit"><col class="c-date"><col class="c-note"><col class="c-del"></colgroup>
+        <thead><tr><th>階段/項目</th><th>數量</th><th>人民幣¥</th><th>台幣NT$</th><th>單價</th><th>日期</th><th>備註</th><th></th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <button class="add-row-btn" data-action="add-item">＋ 新增明細列</button>`;
+}
+
+function renderCardEdit(p, idx) {
+  return `
+  <div class="card-edit" data-idx="${idx}" data-year="${p.year}" data-name="${esc((p.name||'').toLowerCase())}">
+    <div class="edit-head">
+      ${editField("產品名稱", "field-name", `<input class="ipt" data-field="name" value="${esc(p.name)}" placeholder="產品名稱">`)}
+      ${editField("年度", "field-year", `<input class="ipt mono" type="number" data-field="year" value="${p.year ?? ""}">`)}
+      ${editField("台幣單價（重點）", "field-unit field-emphasis", `<input class="ipt mono emphasis" type="number" step="0.01" data-field="unit" value="${p.unit ?? ""}" placeholder="尚無單價">`)}
+      ${editField("總金額 NT$", "field-total", `<input class="ipt mono" type="number" data-field="total" value="${p.total ?? ""}" placeholder="尚無資料">`)}
+      <button class="card-del" data-action="del-product" title="刪除此產品" style="align-self:flex-end;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+      </button>
+    </div>
+    <div class="edit-note">
+      <label>備註（顯示為橘色提示框，可留空）</label>
+      <textarea class="ipt" data-field="note" placeholder="例如：大貨尚未下單，單價暫無法計算">${esc(p.note)}</textarea>
+    </div>
+    ${renderItemsEdit(p, idx)}
+  </div>`;
+}
+
+function renderEdit() {
+  const list = document.getElementById("list");
+  const order = groupedIndexesByYear();
+  const q = (document.getElementById("searchInputEdit").value || "").trim().toLowerCase();
+  let html = "";
+  order.forEach(idx => {
+    const p = state[idx];
+    if (q && !(p.name||"").toLowerCase().includes(q)) return;
+    html += renderCardEdit(p, idx);
+  });
+  list.innerHTML = html || `<p class="no-results" style="display:block">沒有符合搜尋的產品，或按下方按鈕新增一項。</p>`;
+  document.getElementById("addActions").style.display = "flex";
+}
+
+/* ---------------- Stats / filters ---------------- */
+
+function updateStats() {
+  document.getElementById("stat-count").textContent = state.length;
+  const totalSum = state.reduce((a, p) => a + (Number(p.total) || 0), 0);
+  document.getElementById("stat-total").innerHTML = fmtTWD(totalSum) + " <small>TWD</small>";
+  const years = [...new Set(state.map(p => p.year))];
+  document.getElementById("stat-years").textContent = years.length;
+  document.getElementById("footer-count").textContent = state.length;
+
+  const yf = document.getElementById("yearFilter");
+  const prevActive = yf.querySelector("button.active");
+  const prevYear = prevActive ? prevActive.dataset.year : "all";
+  years.sort((a, b) => b - a);
+  let h = `<button data-year="all" class="${prevYear === 'all' ? 'active' : ''}">全部</button>`;
+  years.forEach(y => { h += `<button data-year="${y}" class="${String(y) === prevYear ? 'active' : ''}">${esc(y)}</button>`; });
+  if (!years.some(y => String(y) === prevYear) && prevYear !== 'all') {
+    h = `<button data-year="all" class="active">全部</button>` + years.map(y => `<button data-year="${y}">${esc(y)}</button>`).join("");
+  }
+  yf.innerHTML = h;
+}
+
+function applyFilters() {
+  const q = document.getElementById("searchInput").value.trim().toLowerCase();
+  const activeBtn = document.querySelector("#yearFilter button.active");
+  const activeYear = activeBtn ? activeBtn.dataset.year : "all";
+
+  let visibleCount = 0;
+  document.querySelectorAll(".card").forEach(card => {
+    const matchesText = !q || card.dataset.name.includes(q);
+    const matchesYear = activeYear === "all" || card.dataset.year === activeYear;
+    const show = matchesText && matchesYear;
+    card.style.display = show ? "" : "none";
+    if (show) visibleCount++;
+  });
+
+  document.querySelectorAll(".section-label").forEach(label => {
+    const y = label.dataset.sectionYear;
+    const anyVisible = [...document.querySelectorAll(`.card[data-year="${y}"]`)].some(c => c.style.display !== "none");
+    label.style.display = anyVisible ? "" : "none";
+  });
+
+  document.getElementById("noResults").style.display = visibleCount === 0 ? "block" : "none";
+}
+
+/* ---------------- State mutation helpers ---------------- */
+
+function markDirty() {
+  dirty = true;
+  document.getElementById("dirtyDot").style.display = "inline-block";
+}
+
+function coerceNum(v) {
+  if (v === "" || v === null || v === undefined) return null;
+  const n = Number(v);
+  return Number.isNaN(n) ? null : n;
+}
+
+function wireEditDelegation() {
+  const list = document.getElementById("list");
+
+  list.addEventListener("input", e => {
+    const t = e.target;
+    if (!t.matches(".ipt")) return;
+    const field = t.dataset.field;
+    if (!field) return;
+
+    const cardEl = t.closest(".card-edit");
+    if (!cardEl) return;
+    const pIdx = Number(cardEl.dataset.idx);
+    const p = state[pIdx];
+    const rowEl = t.closest("tr[data-item-idx]");
+
+    if (rowEl) {
+      const iIdx = Number(rowEl.dataset.itemIdx);
+      const numeric = ["q", "rmb", "twd"].includes(field);
+      p.items[iIdx][field] = numeric ? coerceNum(t.value) : (t.value === "" ? null : t.value);
+      if (field === "u") {
+        const n = Number(t.value);
+        p.items[iIdx].u = t.value === "" ? null : (Number.isNaN(n) ? t.value : n);
+      }
+    } else {
+      if (field === "year") { p.year = coerceNum(t.value) ?? p.year; cardEl.dataset.year = p.year; }
+      else if (field === "total" || field === "unit") { p[field] = coerceNum(t.value); }
+      else { p[field] = t.value === "" ? null : t.value; if (field === "name") cardEl.dataset.name = (t.value||"").toLowerCase(); }
+    }
+    markDirty();
+  });
+
+  list.addEventListener("click", e => {
+    const addItemBtn = e.target.closest('[data-action="add-item"]');
+    if (addItemBtn) {
+      const cardEl = addItemBtn.closest(".card-edit");
+      const pIdx = Number(cardEl.dataset.idx);
+      state[pIdx].items = state[pIdx].items || [];
+      state[pIdx].items.push({s: "", q: null, rmb: null, twd: null, u: null, d: "", n: ""});
+      markDirty();
+      renderEdit();
+      return;
+    }
+
+    const delItemBtn = e.target.closest('[data-action="del-item"]');
+    if (delItemBtn) {
+      if (!delItemBtn.classList.contains("confirm")) {
+        delItemBtn.classList.add("confirm");
+        setTimeout(() => delItemBtn.classList.remove("confirm"), 3000);
+        return;
+      }
+      const cardEl = delItemBtn.closest(".card-edit");
+      const pIdx = Number(cardEl.dataset.idx);
+      const rowEl = delItemBtn.closest("tr[data-item-idx]");
+      const iIdx = Number(rowEl.dataset.itemIdx);
+      state[pIdx].items.splice(iIdx, 1);
+      markDirty();
+      renderEdit();
+      return;
+    }
+
+    const delProductBtn = e.target.closest('[data-action="del-product"]');
+    if (delProductBtn) {
+      if (!delProductBtn.classList.contains("confirm")) {
+        delProductBtn.classList.add("confirm");
+        delProductBtn.title = "再按一次以確認刪除";
+        setTimeout(() => { delProductBtn.classList.remove("confirm"); delProductBtn.title = "刪除此產品"; }, 3000);
+        return;
+      }
+      const cardEl = delProductBtn.closest(".card-edit");
+      const pIdx = Number(cardEl.dataset.idx);
+      state.splice(pIdx, 1);
+      markDirty();
+      renderEdit();
+      updateStats();
+      return;
+    }
+  });
+}
+
+function addProduct(yearOverride) {
+  const year = yearOverride ?? new Date().getFullYear();
+  state.push({
+    name: "",
+    year: year,
+    total: null,
+    unit: null,
+    note: null,
+    items: [{s: "", q: null, rmb: null, twd: null, u: null, d: "", n: ""}]
+  });
+  const newIdx = state.length - 1;
+  markDirty();
+  document.getElementById("searchInputEdit").value = "";
+  renderEdit();
+  updateStats();
+  requestAnimationFrame(() => {
+    const card = document.querySelector(`.card-edit[data-idx="${newIdx}"]`);
+    if (card) { card.scrollIntoView({behavior: "smooth", block: "center"}); const inp = card.querySelector('input[data-field="name"]'); if (inp) inp.focus(); }
+  });
+}
+
+function addYear() {
+  const years = state.map(p => Number(p.year)).filter(y => !Number.isNaN(y));
+  const nextYear = years.length ? Math.max(...years) + 1 : new Date().getFullYear();
+  addProduct(nextYear);
+  toast(`已建立年度 ${nextYear}，請填寫第一項產品`);
+}
+
+/* ---------------- Mode switching ---------------- */
+
+function enterEditMode() {
+  if (!currentUser) { openAuthModal(); return; }
+  editMode = true;
+  document.body.classList.add("edit-mode");
+  document.getElementById("searchInputEdit").value = document.getElementById("searchInput").value;
+  renderEdit();
+}
+
+function exitEditMode() {
+  editMode = false;
+  document.body.classList.remove("edit-mode");
+  if (pendingRemoteState) {
+    state = pendingRemoteState;
+    pendingRemoteState = null;
+    toast("已套用雲端最新版本");
+  }
+  renderView();
+  updateStats();
+}
+
+/* ---------------- Auth ---------------- */
+
+function openAuthModal() {
+  document.getElementById("authError").textContent = "";
+  document.getElementById("authEmail").value = "";
+  document.getElementById("authPassword").value = "";
+  document.getElementById("authOverlay").classList.add("show");
+  document.getElementById("authEmail").focus();
+}
+
+function closeAuthModal() {
+  document.getElementById("authOverlay").classList.remove("show");
+}
+
+async function handleAuthSubmit() {
+  if (!firebaseReady || !auth) {
+    document.getElementById("authError").textContent = "尚未設定 Firebase，請參考架設教學完成設定。";
+    return;
+  }
+  const email = document.getElementById("authEmail").value.trim();
+  const password = document.getElementById("authPassword").value;
+  const btn = document.getElementById("authSubmitBtn");
+  const label = document.getElementById("authSubmitLabel");
+  if (!email || !password) {
+    document.getElementById("authError").textContent = "請輸入 Email 與密碼。";
+    return;
+  }
+  btn.disabled = true;
+  label.innerHTML = '<span class="spinner"></span> 登入中…';
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    closeAuthModal();
+    enterEditMode();
+  } catch (err) {
+    const code = err && err.code;
+    let msg = "登入失敗，請確認帳號密碼是否正確。";
+    if (code === "auth/invalid-email") msg = "Email 格式不正確。";
+    else if (code === "auth/too-many-requests") msg = "嘗試次數過多，請稍後再試。";
+    document.getElementById("authError").textContent = msg;
+  } finally {
+    btn.disabled = false;
+    label.textContent = "登入";
+  }
+}
+
+function updateAuthUI(user) {
+  currentUser = user || null;
+  const userBadge = document.getElementById("userBadge");
+  const enterBtn = document.getElementById("enterEditBtn");
+  if (currentUser) {
+    userBadge.style.display = "flex";
+    document.getElementById("userEmail").textContent = currentUser.email || "";
+    enterBtn.style.display = "inline-flex";
+  } else {
+    userBadge.style.display = "none";
+    enterBtn.style.display = "inline-flex";
+    if (editMode) exitEditMode();
+  }
+}
+
+/* ---------------- Save / cloud sync ---------------- */
+
+function setSaving(v) {
+  saving = v;
+  const btn = document.getElementById("saveBtn");
+  const label = document.getElementById("saveBtnLabel");
+  btn.disabled = v;
+  label.innerHTML = v ? '<span class="spinner"></span> 儲存中…' : "儲存變更";
+}
+
+function setSyncStatus(mode, text) {
+  const dot = document.getElementById("syncDot");
+  const label = document.getElementById("syncText");
+  dot.classList.remove("offline", "syncing");
+  if (mode === "offline") dot.classList.add("offline");
+  else if (mode === "syncing") dot.classList.add("syncing");
+  label.textContent = text;
+}
+
+async function handleSave() {
+  if (saving) return;
+  if (!firebaseReady || !db || !docRef) { toast("尚未設定 Firebase，無法儲存到雲端"); return; }
+  if (!currentUser) { toast("請先登入才能儲存"); openAuthModal(); return; }
+  setSaving(true);
+  try {
+    await setDoc(docRef, { products: state, updatedAt: serverTimestamp() });
+    dirty = false;
+    document.getElementById("dirtyDot").style.display = "none";
+    toast("已儲存並同步至雲端");
+  } catch (err) {
+    console.error(err);
+    const code = err && err.code;
+    if (code === "permission-denied") {
+      toast("您沒有寫入權限，請確認 Firestore 規則或登入帳號");
+    } else {
+      toast("儲存失敗，請確認網路連線後再試");
+    }
+  } finally {
+    setSaving(false);
+  }
+}
+
+function subscribeCloud() {
+  if (!firebaseReady || !db || !docRef) {
+    setSyncStatus("offline", "離線模式（尚未設定 Firebase，僅顯示內建資料）");
+    return;
+  }
+  setSyncStatus("syncing", "連線中…");
+  onSnapshot(docRef, (snap) => {
+    if (saving) return; // ignore the optimistic local echo of our own in-flight write
+    if (snap.exists()) {
+      const data = snap.data();
+      if (data && Array.isArray(data.products)) {
+        if (editMode) {
+          // don't disturb an active editing session; apply once the user exits edit mode
+          pendingRemoteState = data.products;
+          if (dirty) toast("雲端有新版本，離開編輯模式後將自動套用");
+        } else {
+          state = data.products;
+          pendingRemoteState = null;
+          renderView();
+          updateStats();
+        }
+      }
+    } else {
+      toast("尚未建立雲端資料，登入後按「儲存變更」即可將目前資料建立為雲端版本");
+    }
+    setSyncStatus("online", "即時同步中");
+  }, (err) => {
+    console.error(err);
+    setSyncStatus("offline", "雲端連線失敗（離線顯示本機資料）");
+  });
+}
+
+/* ---------------- Wiring ---------------- */
+
+function wireControls() {
+  document.getElementById("searchInput").addEventListener("input", applyFilters);
+  document.getElementById("yearFilter").addEventListener("click", e => {
+    const btn = e.target.closest("button");
+    if (!btn) return;
+    document.querySelectorAll("#yearFilter button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    applyFilters();
+  });
+  document.getElementById("toggleAllBtn").addEventListener("click", () => {
+    expandedAll = !expandedAll;
+    document.querySelectorAll(".card").forEach(c => { c.open = expandedAll; });
+    document.getElementById("toggleAllBtn").textContent = expandedAll ? "全部收合" : "全部展開";
+  });
+
+  document.getElementById("enterEditBtn").addEventListener("click", enterEditMode);
+  document.getElementById("exitEditBtn").addEventListener("click", () => {
+    if (dirty && !confirm("有尚未儲存的變更，確定要離開編輯模式嗎？（變更會保留在畫面上，直到您按下「儲存變更」或重新整理頁面）")) return;
+    exitEditMode();
+  });
+  document.getElementById("saveBtn").addEventListener("click", handleSave);
+  document.getElementById("addProductBtn").addEventListener("click", () => addProduct());
+  document.getElementById("addYearBtn").addEventListener("click", addYear);
+  document.getElementById("searchInputEdit").addEventListener("input", renderEdit);
+
+  document.getElementById("authCancelBtn").addEventListener("click", closeAuthModal);
+  document.getElementById("authSubmitBtn").addEventListener("click", handleAuthSubmit);
+  document.getElementById("authOverlay").addEventListener("click", (e) => {
+    if (e.target.id === "authOverlay") closeAuthModal();
+  });
+  document.getElementById("authPassword").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") handleAuthSubmit();
+  });
+  document.getElementById("signOutBtn").addEventListener("click", async () => {
+    if (auth) { try { await signOut(auth); } catch (e) { console.error(e); } }
+    exitEditMode();
+    toast("已登出");
+  });
+
+  wireEditDelegation();
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  // Render immediately from the embedded PRODUCTS_INITIAL data so the page
+  // is fully usable the instant it loads, before Firebase (if any) responds.
+  renderView();
+  updateStats();
+  wireControls();
+  updateAuthUI(null);
+
+  if (!firebaseConfigFilled) {
+    setSyncStatus("offline", "離線模式（尚未設定 Firebase，僅顯示內建資料）");
+    return;
+  }
+
+  setSyncStatus("syncing", "連線中…");
+  const sdkOk = await loadFirebaseSDK();
+  if (!sdkOk) {
+    setSyncStatus("offline", "離線模式（無法連線至 Firebase 服務，僅顯示本機資料）");
+    return;
+  }
+
+  try {
+    firebaseApp = initializeApp(firebaseConfig);
+    auth = getAuth(firebaseApp);
+    db = getFirestore(firebaseApp);
+    docRef = doc(db, FIRESTORE_COLLECTION, FIRESTORE_DOC);
+    firebaseReady = true;
+  } catch (e) {
+    console.error("Firebase init failed", e);
+    firebaseReady = false;
+  }
+
+  if (firebaseReady) {
+    onAuthStateChanged(auth, (user) => updateAuthUI(user));
+    subscribeCloud();
+  } else {
+    setSyncStatus("offline", "離線模式（Firebase 初始化失敗，僅顯示本機資料）");
+  }
+});
+</script>
+</body>
+</html>
