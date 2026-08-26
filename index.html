@@ -508,7 +508,7 @@
 
   <div class="stats">
     <div class="stat"><div class="label">產品項目數</div><div class="value" id="stat-count">–</div></div>
-    <div class="stat"><div class="label">開發中項目數</div><div class="value" id="stat-dev">–</div></div>
+    <div class="stat"><div class="label">進行中項目數</div><div class="value" id="stat-dev">–</div></div>
   </div>
 
   <div class="toolbar" id="toolbar">
@@ -535,7 +535,7 @@
   <div class="add-actions" id="addActions" style="display:none">
     <button class="add-product-card" id="addProductBtn">＋ 新增產品項目</button>
     <button class="add-product-card add-year-card" id="addYearBtn">＋ 新增年度</button>
-    <button class="add-product-card add-dev-card" id="addDevBtn">＋ 新增開發中項目</button>
+    <button class="add-product-card add-dev-card" id="addDevBtn">＋ 新增進行中項目</button>
   </div>
   <p class="no-results" id="noResults">找不到符合的產品。</p>
 
@@ -629,9 +629,16 @@ const fmtRMB = n => (n === null || n === undefined || n === "") ? null : "¥" + 
 const fmtQty = n => (n === null || n === undefined || n === "") ? null : Math.round(n).toLocaleString("en-US");
 const esc = s => (s === null || s === undefined) ? "" : String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
-const DEV_LABEL = "開發中";
-const isDevYear = y => y === DEV_LABEL;
-// Sort value used to order product groups: "開發中" always leads, then years descending.
+// DEV_VALUE is the sentinel stored in a dev-category product's `year` field.
+// Kept as the original string on purpose: it's what's already saved in
+// Firestore for existing products, and must never change just because the
+// on-screen label changes. DEV_LABEL is only the *display* text shown to
+// users — the two are intentionally decoupled so relabeling the UI never
+// requires touching stored product data.
+const DEV_VALUE = "開發中";
+const DEV_LABEL = "進行中";
+const isDevYear = y => y === DEV_VALUE;
+// Sort value used to order product groups: dev items always lead, then years descending.
 const yearSortValue = y => isDevYear(y) ? Infinity : (Number.isFinite(Number(y)) ? Number(y) : -Infinity);
 
 const IMG_PLACEHOLDER_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="1.8"/><path d="m21 15-5-5L5 21"/></svg>`;
@@ -735,7 +742,7 @@ function renderPCard(p, idx) {
   const thumbHtml = p.img
     ? `<div class="pcard-thumb"><img src="${esc(p.img)}" alt="" loading="lazy"></div>`
     : `<div class="pcard-thumb">${IMG_PLACEHOLDER_SVG}</div>`;
-  const devChip = isDevYear(p.year) ? `<span class="chip chip-dev">開發中</span>` : "";
+  const devChip = isDevYear(p.year) ? `<span class="chip chip-dev">${DEV_LABEL}</span>` : "";
   const editBtn = currentUser
     ? `<button class="item-edit-btn" type="button" data-action="edit-item" data-idx="${idx}" title="編輯此產品">${EDIT_PENCIL_SVG}</button>`
     : "";
@@ -833,7 +840,7 @@ function renderCardEdit(p, idx) {
     <div class="edit-field field-year">
       <label>年度</label>
       <input class="ipt mono" type="number" data-field="year" value="${devFlag ? "" : (p.year ?? "")}" ${devFlag ? "disabled" : ""} placeholder="年度">
-      <label class="dev-toggle"><input type="checkbox" data-action="toggle-dev" ${devFlag ? "checked" : ""}> 開發中</label>
+      <label class="dev-toggle"><input type="checkbox" data-action="toggle-dev" ${devFlag ? "checked" : ""}> ${DEV_LABEL}</label>
     </div>`;
   return `
   <div class="card-edit product-card" data-idx="${idx}" data-year="${esc(p.year)}" data-name="${esc((p.name||'').toLowerCase())}">
@@ -871,10 +878,11 @@ function updateStats() {
   const prevYear = prevActive ? prevActive.dataset.year : "all";
   const rawYears = [...new Set(state.map(p => p.year))];
   const years = rawYears.sort((a, b) => yearSortValue(b) - yearSortValue(a));
+  const yearBtnLabel = y => isDevYear(y) ? DEV_LABEL : esc(y);
   let h = `<button data-year="all" class="${prevYear === 'all' ? 'active' : ''}">全部</button>`;
-  years.forEach(y => { h += `<button data-year="${esc(y)}" class="${String(y) === prevYear ? 'active' : ''}">${esc(y)}</button>`; });
+  years.forEach(y => { h += `<button data-year="${esc(y)}" class="${String(y) === prevYear ? 'active' : ''}">${yearBtnLabel(y)}</button>`; });
   if (!years.some(y => String(y) === prevYear) && prevYear !== 'all') {
-    h = `<button data-year="all" class="active">全部</button>` + years.map(y => `<button data-year="${esc(y)}">${esc(y)}</button>`).join("");
+    h = `<button data-year="all" class="active">全部</button>` + years.map(y => `<button data-year="${esc(y)}">${yearBtnLabel(y)}</button>`).join("");
   }
   yf.innerHTML = h;
 }
@@ -971,7 +979,7 @@ function wireEditDelegation() {
       const cardEl = devToggle.closest(".card-edit");
       const pIdx = Number(cardEl.dataset.idx);
       const p = state[pIdx];
-      p.year = devToggle.checked ? DEV_LABEL : new Date().getFullYear();
+      p.year = devToggle.checked ? DEV_VALUE : new Date().getFullYear();
       markDirty();
       renderList();
       return;
@@ -1089,8 +1097,8 @@ function addYear() {
 }
 
 function addDevProduct() {
-  addProduct(DEV_LABEL);
-  toast("已建立「開發中」項目，請填寫產品資訊");
+  addProduct(DEV_VALUE);
+  toast(`已建立「${DEV_LABEL}」項目，請填寫產品資訊`);
 }
 
 /* ---------------- Auth ---------------- */
