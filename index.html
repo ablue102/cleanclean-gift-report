@@ -611,9 +611,65 @@
   .sync-dot.syncing { background: var(--warn); }
   .user-badge { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 8px; margin-left: auto; }
   .user-badge .signout-link { color: var(--accent-strong); cursor: pointer; text-decoration: underline; background: none; border: none; font: inherit; padding: 0; }
+
+  /* ---------- View gate: the whole report is behind Google sign-in,
+     restricted to the @skyspring.tw company domain (plus the owner's
+     personal account). Shown full-screen until an authorized session is
+     confirmed; .wrap stays hidden the whole time via body.gate-locked. ---- */
+  body.gate-locked .wrap, body.gate-locked #toast { display: none; }
+  #viewGate {
+    position: fixed; inset: 0; z-index: 80; display: none;
+    align-items: center; justify-content: center; padding: 20px;
+    background: var(--bg);
+  }
+  body.gate-locked #viewGate { display: flex; }
+  .view-gate-card {
+    width: 100%; max-width: 360px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 18px;
+    padding: 32px 28px 26px; text-align: center; box-shadow: var(--shadow);
+  }
+  .view-gate-logo { color: var(--accent-strong); margin-bottom: 10px; }
+  .view-gate-logo svg { width: 40px; height: 40px; }
+  .view-gate-title { font-size: 17px; font-weight: 700; margin: 0 0 6px; color: var(--text); }
+  .view-gate-sub { font-size: 12.5px; color: var(--text-muted); margin: 0 0 20px; line-height: 1.6; }
+  .view-gate-error { color: var(--danger); font-size: 12px; min-height: 14px; margin-bottom: 8px; }
+  .view-gate-google-btn {
+    width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+    font-family: inherit; font-size: 13.5px; font-weight: 600; padding: 11px 16px;
+    border-radius: 10px; border: 1px solid var(--border-strong); background: var(--surface);
+    color: var(--text); cursor: pointer; transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .view-gate-google-btn:hover { border-color: var(--accent-strong); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .view-gate-google-btn:disabled { opacity: .6; cursor: default; }
+  .view-gate-denied p {
+    font-size: 12.5px; color: var(--text); line-height: 1.7; margin: 0 0 16px;
+    background: var(--danger-soft); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px;
+  }
+  .view-gate-denied .btn { width: 100%; justify-content: center; }
+  .view-gate-hint { margin: 20px 0 0; font-size: 11px; color: var(--text-faint); }
 </style>
 </head>
-<body>
+<body class="gate-locked">
+
+<div id="viewGate">
+  <div class="view-gate-card">
+    <div class="view-gate-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c3.5 3.5 6 7 6 10.5a6 6 0 1 1-12 0C6 10 8.5 6.5 12 3Z"/></svg>
+    </div>
+    <h1 class="view-gate-title">淨淨贈品/周邊成本明細</h1>
+    <p class="view-gate-sub" id="viewGateMsg">請使用 <strong>@skyspring.tw</strong> 公司 Google 帳號登入以檢視內容。</p>
+    <div class="view-gate-error" id="viewGateError"></div>
+    <button class="view-gate-google-btn" id="viewGateLoginBtn" type="button">
+      <svg width="16" height="16" viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.98v2.33A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.17.28-1.7V4.97H.98A9 9 0 0 0 0 9c0 1.45.35 2.83.98 4.03l2.97-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .98 4.97l2.97 2.33C4.66 5.17 6.65 3.58 9 3.58z"/></svg>
+      <span id="viewGateLoginLabel">使用 Google 登入</span>
+    </button>
+    <div class="view-gate-denied" id="viewGateDenied" style="display:none">
+      <p>此帳號（<strong id="viewGateDeniedEmail"></strong>）未經授權。<br>僅限 <strong>@skyspring.tw</strong> 公司網域帳號可檢視，如有疑問請聯繫管理員。</p>
+      <button class="btn" id="viewGateSignOutBtn" type="button">登出並切換帳號</button>
+    </div>
+    <p class="view-gate-hint">© 2026 淨淨 CleanClean</p>
+  </div>
+</div>
 
 <div class="wrap">
   <header class="page">
@@ -718,6 +774,27 @@ let firebaseApp = null, auth = null, db = null, docRef = null;
 let firebaseReady = false; // true only once the SDK is loaded AND config + init all succeeded
 let currentUser = null;
 let pendingRemoteState = null;
+let cloudSubscribed = false; // guards against subscribing to Firestore more than once
+let unsubscribeCloud = null; // torn down on sign-out so a later sign-in resubscribes fresh
+
+// ---- Access control -------------------------------------------------
+// Viewing the whole report now requires a signed-in Google account whose
+// email is either the owner's personal account, or on the @skyspring.tw
+// company domain (see #viewGate below). Editing (the pencil icons, add
+// buttons, 儲存變更) stays restricted to the owner alone — this matches
+// what Firestore's security rules enforce server-side for writes, but
+// previously wasn't mirrored in the UI because view access was public and
+// in practice only the owner ever signed in at all.
+const OWNER_EMAIL = "ablue102@gmail.com";
+const VIEWER_DOMAIN = "@skyspring.tw";
+function isOwner(user) {
+  return !!user && (user.email || "").toLowerCase() === OWNER_EMAIL;
+}
+function isAllowedViewer(user) {
+  if (!user) return false;
+  const email = (user.email || "").toLowerCase();
+  return email === OWNER_EMAIL || email.endsWith(VIEWER_DOMAIN.toLowerCase());
+}
 
 async function loadFirebaseSDK() {
   try {
@@ -940,7 +1017,7 @@ function renderPCard(p, idx) {
     ? `<div class="pcard-thumb"><img src="${esc(p.img)}" alt="" loading="lazy"></div>`
     : `<div class="pcard-thumb">${IMG_PLACEHOLDER_SVG}</div>`;
   const devChip = isDevYear(p.year) ? `<span class="chip chip-dev">${DEV_LABEL}</span>` : "";
-  const editBtn = currentUser
+  const editBtn = isOwner(currentUser)
     ? `<button class="item-edit-btn" type="button" data-action="edit-item" data-idx="${idx}" title="編輯此產品">${EDIT_PENCIL_SVG}</button>`
     : "";
 
@@ -1545,17 +1622,14 @@ function updateAuthUI(user) {
   const loginBtn = document.getElementById("loginBtn");
   const saveBtn = document.getElementById("saveBtn");
   const addActions = document.getElementById("addActions");
+  const editorAllowed = isOwner(currentUser);
   if (currentUser) {
     userBadge.style.display = "flex";
     document.getElementById("userEmail").textContent = currentUser.email || "";
     loginBtn.style.display = "none";
-    saveBtn.style.display = "inline-flex";
-    addActions.style.display = "flex";
   } else {
     userBadge.style.display = "none";
     loginBtn.style.display = "inline-flex";
-    saveBtn.style.display = "none";
-    addActions.style.display = "none";
     editingIdx = null;
     if (pendingRemoteState) {
       state = pendingRemoteState;
@@ -1563,7 +1637,105 @@ function updateAuthUI(user) {
       pendingRemoteState = null;
     }
   }
+  // Editing (pencil icons, save, add-product actions) is restricted to the
+  // owner's account, separately from whether someone is merely signed in
+  // to view — see isOwner()/isAllowedViewer() above.
+  saveBtn.style.display = editorAllowed ? "inline-flex" : "none";
+  addActions.style.display = editorAllowed ? "flex" : "none";
   renderList();
+}
+
+/* ---------------- View gate ----------------
+   The report is fully hidden (see body.gate-locked in <style>) until a
+   signed-in Google account passes isAllowedViewer() — either the owner's
+   account, or anyone on the @skyspring.tw company domain. This runs
+   independently of updateAuthUI()'s editor-only save/add controls: being
+   let past the gate only grants viewing, not editing. */
+function updateViewGate(user) {
+  const gateMsg = document.getElementById("viewGateMsg");
+  const gateError = document.getElementById("viewGateError");
+  const gateLoginBtn = document.getElementById("viewGateLoginBtn");
+  const gateDenied = document.getElementById("viewGateDenied");
+  const gateDeniedEmail = document.getElementById("viewGateDeniedEmail");
+
+  if (!firebaseConfigFilled || !firebaseReady) {
+    // No way to verify identity at all — stay locked with an explanation
+    // rather than falling back to showing the access-controlled report.
+    document.body.classList.add("gate-locked");
+    gateMsg.style.display = "none";
+    gateLoginBtn.style.display = "none";
+    gateDenied.style.display = "none";
+    gateError.textContent = "尚未設定 Firebase 登入服務，暫時無法驗證身分，請聯絡管理員。";
+    return;
+  }
+
+  if (isAllowedViewer(user)) {
+    document.body.classList.remove("gate-locked");
+    gateError.textContent = "";
+    if (!cloudSubscribed) {
+      cloudSubscribed = true;
+      subscribeCloud();
+    }
+    return;
+  }
+
+  // Not an authorized viewer (signed out, or signed in with a disallowed
+  // account) — tear down any live Firestore subscription so a later
+  // sign-in as an allowed account resubscribes fresh instead of relying on
+  // a listener that a rules change may since have turned into a dead
+  // permission-denied stream.
+  if (cloudSubscribed) {
+    if (unsubscribeCloud) { try { unsubscribeCloud(); } catch (e) { /* no-op */ } }
+    unsubscribeCloud = null;
+    cloudSubscribed = false;
+  }
+
+  document.body.classList.add("gate-locked");
+  // Clear any stale "Firebase not ready yet" message from an earlier call —
+  // Firebase is clearly working now, or we wouldn't have a real user/null
+  // callback to react to at all.
+  gateError.textContent = "";
+  if (user) {
+    // Signed in, but this email isn't on the allow-list.
+    gateMsg.style.display = "none";
+    gateLoginBtn.style.display = "none";
+    gateDenied.style.display = "block";
+    gateDeniedEmail.textContent = user.email || "";
+  } else {
+    gateMsg.style.display = "block";
+    gateLoginBtn.style.display = "flex";
+    gateDenied.style.display = "none";
+  }
+}
+
+async function handleGateLogin() {
+  if (!firebaseReady || !auth) {
+    document.getElementById("viewGateError").textContent = "尚未設定 Firebase，請參考架設教學完成設定。";
+    return;
+  }
+  const btn = document.getElementById("viewGateLoginBtn");
+  const label = document.getElementById("viewGateLoginLabel");
+  document.getElementById("viewGateError").textContent = "";
+  btn.disabled = true;
+  label.textContent = "登入中…";
+  try {
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(auth, provider);
+  } catch (err) {
+    const code = err && err.code;
+    let msg = "登入失敗，請再試一次。";
+    if (code === "auth/popup-closed-by-user") msg = "登入視窗已關閉，請再試一次。";
+    else if (code === "auth/popup-blocked") msg = "瀏覽器封鎖了登入彈出視窗，請允許彈出視窗後再試一次。";
+    else if (code === "auth/unauthorized-domain") msg = "此網域尚未被 Firebase 授權登入，請聯絡管理員設定。";
+    document.getElementById("viewGateError").textContent = msg;
+  } finally {
+    btn.disabled = false;
+    label.textContent = "使用 Google 登入";
+  }
+}
+
+async function handleGateSignOut() {
+  if (auth) { try { await signOut(auth); } catch (e) { console.error(e); } }
 }
 
 /* ---------------- Save / cloud sync ---------------- */
@@ -1589,6 +1761,7 @@ async function handleSave() {
   if (saving) return;
   if (!firebaseReady || !db || !docRef) { toast("尚未設定 Firebase，無法儲存到雲端"); return; }
   if (!currentUser) { toast("請先登入才能儲存"); openAuthModal(); return; }
+  if (!isOwner(currentUser)) { toast("此 Google 帳號沒有編輯權限"); return; }
 
   // Firestore documents are capped at 1 MiB; product images are the only
   // field that can grow large, so check before attempting the write rather
@@ -1626,7 +1799,7 @@ function subscribeCloud() {
     return;
   }
   setSyncStatus("syncing", "連線中…");
-  onSnapshot(docRef, (snap) => {
+  unsubscribeCloud = onSnapshot(docRef, (snap) => {
     if (saving) return; // ignore the optimistic local echo of our own in-flight write
     if (snap.exists()) {
       const data = snap.data();
@@ -1688,19 +1861,26 @@ function wireControls() {
     toast("已登出");
   });
 
+  document.getElementById("viewGateLoginBtn").addEventListener("click", handleGateLogin);
+  document.getElementById("viewGateSignOutBtn").addEventListener("click", handleGateSignOut);
+
   wireEditDelegation();
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
   // Render immediately from the embedded PRODUCTS_INITIAL data so the page
-  // is fully usable the instant it loads, before Firebase (if any) responds.
+  // is ready the instant Firebase confirms an authorized viewer — but the
+  // report itself stays hidden behind #viewGate (body.gate-locked) until
+  // that happens; see updateViewGate() below.
   renderList();
   updateStats();
   wireControls();
   updateAuthUI(null);
+  updateViewGate(null);
 
   if (!firebaseConfigFilled) {
     setSyncStatus("offline", "離線模式（尚未設定 Firebase，僅顯示內建資料）");
+    updateViewGate(null);
     return;
   }
 
@@ -1708,6 +1888,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const sdkOk = await loadFirebaseSDK();
   if (!sdkOk) {
     setSyncStatus("offline", "離線模式（無法連線至 Firebase 服務，僅顯示本機資料）");
+    updateViewGate(null);
     return;
   }
 
@@ -1723,10 +1904,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   if (firebaseReady) {
-    onAuthStateChanged(auth, (user) => updateAuthUI(user));
-    subscribeCloud();
+    onAuthStateChanged(auth, (user) => { updateAuthUI(user); updateViewGate(user); });
   } else {
     setSyncStatus("offline", "離線模式（Firebase 初始化失敗，僅顯示本機資料）");
+    updateViewGate(null);
   }
 });
 </script>
