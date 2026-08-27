@@ -356,6 +356,7 @@
   .pcard.pcard-list .pcard-meta { padding: 0; }
   .chip { font-size: 11.5px; color: var(--text-muted); background: var(--sky-soft); padding: 3px 9px; border-radius: 999px; white-space: nowrap; font-weight: 500; }
   .chip-dev { background: var(--warn-soft); color: var(--warn); font-weight: 600; }
+  .chip-pause { background: var(--border); color: var(--text-faint); font-weight: 600; }
 
   .price-block { padding: 0 16px; text-align: left; }
   .pcard[open] .price-block, .pcard.pcard-list .price-block { padding: 0; text-align: right; flex: 0 0 auto; }
@@ -1033,11 +1034,12 @@ function renderPCard(p, idx, opts) {
   const thumbHtml = p.img
     ? `<div class="pcard-thumb"><img src="${esc(p.img)}" alt="" loading="lazy"></div>`
     : `<div class="pcard-thumb">${IMG_PLACEHOLDER_SVG}</div>`;
-  // "進行中" cards render as a compact list row: the thumb above is always
-  // small (see .pcard-list CSS), and a bigger picture only shows up here,
-  // inside the body, once the row is actually opened.
+  // "進行中" and "暫停" cards both render as a compact list row: the thumb
+  // above is always small (see .pcard-list CSS), and a bigger picture only
+  // shows up here, inside the body, once the row is actually opened.
   const bigImgHtml = (listMode && p.img) ? `<div class="pcard-body-img"><img src="${esc(p.img)}" alt="" loading="lazy"></div>` : "";
-  const devChip = isDevYear(p.year) ? `<span class="chip chip-dev">${DEV_LABEL}</span>` : "";
+  const statusChip = isDevYear(p.year) ? `<span class="chip chip-dev">${DEV_LABEL}</span>`
+    : isPauseYear(p.year) ? `<span class="chip chip-pause">${PAUSE_LABEL}</span>` : "";
   const editBtn = isOwner(currentUser)
     ? `<button class="item-edit-btn" type="button" data-action="edit-item" data-idx="${idx}" title="編輯此產品">${EDIT_PENCIL_SVG}</button>`
     : "";
@@ -1048,7 +1050,7 @@ function renderPCard(p, idx, opts) {
       ${editBtn}
       ${thumbHtml}
       <span class="pcard-name">${esc(p.name) || "（未命名產品）"}</span>
-      <span class="pcard-meta">${devChip}<span class="chip">${(p.items||[]).length} 筆明細</span></span>
+      <span class="pcard-meta">${statusChip}<span class="chip">${(p.items||[]).length} 筆明細</span></span>
       <span class="price-block">
         ${unitDisplay}
         ${totalDisplay}
@@ -1074,7 +1076,9 @@ function renderPauseSection(idxs) {
   const containsEditing = editingIdx !== null && idxs.includes(editingIdx);
   const inner = idxs.map(idx => {
     const p = state[idx];
-    return (idx === editingIdx) ? renderCardEdit(p, idx) : renderPCard(p, idx);
+    // "暫停" cards use the same compact list-row layout as "進行中" — see
+    // renderPCard()'s listMode option.
+    return (idx === editingIdx) ? renderCardEdit(p, idx) : renderPCard(p, idx, { listMode: true });
   }).join("");
   return `
   <details class="pause-section" data-section-year="${esc(PAUSE_VALUE)}" ${containsEditing ? "open" : ""}>
