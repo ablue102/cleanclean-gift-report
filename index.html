@@ -275,12 +275,18 @@
   .spec-section > .spec-body { display: none; margin-top: 10px; }
   .spec-section[open] > .spec-body { display: block; }
 
-  table.specs { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 560px; }
-  table.specs thead th { text-align: left; font-weight: 600; font-size: 11px; letter-spacing: 0.03em; color: var(--accent-strong); padding: 6px 8px; border-bottom: 1px solid var(--border-strong); white-space: nowrap; }
-  table.specs thead th.num { text-align: right; }
-  table.specs tbody td { padding: 6px 8px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
-  table.specs tbody td.num { text-align: right; font-family: "IBM Plex Mono", monospace; }
-  table.specs tbody tr:last-child td { border-bottom: none; }
+  /* Label-left / value-right rows (one block per specs entry) — replaces an
+     earlier wide 8-column table that was hard to read once 報價/備註 held
+     any real amount of text. */
+  .spec-entries { display: flex; flex-direction: column; }
+  .spec-entry { padding: 6px 0; }
+  .spec-entry + .spec-entry { border-top: 1px dashed var(--border-strong); margin-top: 6px; padding-top: 12px; }
+  .spec-entry-index { font-size: 10.5px; font-weight: 600; letter-spacing: 0.04em; color: var(--text-faint); margin-bottom: 6px; }
+  .spec-field { display: flex; gap: 12px; padding: 3px 0; }
+  .spec-field + .spec-field { border-top: 1px solid var(--border); }
+  .spec-label { flex: 0 0 74px; font-size: 11px; font-weight: 600; letter-spacing: 0.03em; color: var(--accent-strong); padding-top: 1px; }
+  .spec-value { flex: 1; font-size: 12.5px; line-height: 1.5; color: var(--text); white-space: pre-wrap; word-break: break-word; }
+  .spec-value.spec-empty { color: var(--text-faint); font-style: italic; }
 
   /* Edit-mode "細項說明" block — same mint tint as the view-mode version so
      the two stay visually linked, but always expanded while editing (no
@@ -876,20 +882,32 @@ function renderItemsTable(p) {
     </div>`;
 }
 
+const SPEC_FIELD_DEFS = [
+  ["moq", "MOQ"],
+  ["size", "尺寸"],
+  ["material", "材質"],
+  ["sampleCost", "打樣金額"],
+  ["sampleDays", "打樣天數"],
+  ["bulkDays", "大貨天數"],
+  ["quote", "報價"],
+  ["note", "備註"],
+];
+
 function renderSpecsView(p) {
   const rows = p.specs || [];
   if (!rows.length) return "";
-  const trs = rows.map(s => `
-    <tr>
-      ${cell(esc(s.moq), "num")}
-      ${cell(esc(s.size))}
-      ${cell(esc(s.material))}
-      ${cell(esc(s.sampleCost), "num")}
-      ${cell(esc(s.sampleDays), "num")}
-      ${cell(esc(s.bulkDays), "num")}
-      ${cell(esc(s.quote), "num")}
-      ${cell(esc(s.note))}
-    </tr>`).join("");
+  const showIndex = rows.length > 1;
+  const entries = rows.map((s, i) => {
+    const fields = SPEC_FIELD_DEFS
+      .filter(([key]) => s[key] !== undefined && s[key] !== null && String(s[key]).trim() !== "")
+      .map(([key, label]) => `
+        <div class="spec-field">
+          <span class="spec-label">${esc(label)}</span>
+          <span class="spec-value">${esc(s[key])}</span>
+        </div>`).join("");
+    const indexTag = showIndex ? `<div class="spec-entry-index">比較項目 ${i + 1}</div>` : "";
+    return `<div class="spec-entry">${indexTag}${fields || `<div class="spec-field"><span class="spec-value spec-empty">（未填寫內容）</span></div>`}</div>`;
+  }).join("");
 
   return `
     <details class="spec-section">
@@ -899,15 +917,7 @@ function renderSpecsView(p) {
         <span class="chip">${rows.length} 筆</span>
       </summary>
       <div class="spec-body">
-        <div class="table-scroll">
-          <table class="specs">
-            <thead><tr>
-              <th class="num">MOQ</th><th>尺寸</th><th>材質</th>
-              <th class="num">打樣金額</th><th class="num">打樣天數</th><th class="num">大貨天數</th><th class="num">報價</th><th>備註</th>
-            </tr></thead>
-            <tbody>${trs}</tbody>
-          </table>
-        </div>
+        <div class="spec-entries">${entries}</div>
       </div>
     </details>`;
 }
