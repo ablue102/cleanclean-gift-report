@@ -299,18 +299,19 @@
     padding: 10px 14px 12px;
   }
   .spec-edit-label { font-size: 11px; color: var(--accent-strong); letter-spacing: .03em; display: block; margin-bottom: 6px; font-weight: 600; }
-  .specs-edit-table { width: 100%; border-collapse: separate; border-spacing: 0 6px; }
-  .specs-edit-table th { text-align: left; font-size: 11px; color: var(--text-faint); letter-spacing: .03em; padding: 0 6px 2px; font-weight: 600; }
-  .specs-edit-table td { padding: 0 6px; vertical-align: top; }
-  .specs-edit-table col.c-moq { width: 9%; }
-  .specs-edit-table col.c-size { width: 12%; }
-  .specs-edit-table col.c-material { width: 12%; }
-  .specs-edit-table col.c-samplecost { width: 11%; }
-  .specs-edit-table col.c-sampledays { width: 10%; }
-  .specs-edit-table col.c-bulkdays { width: 10%; }
-  .specs-edit-table col.c-quote { width: 11%; }
-  .specs-edit-table col.c-note { width: 21%; }
-  .specs-edit-table col.c-del { width: 34px; }
+
+  /* Edit-mode spec entries: one bordered card per 比較項目, each field a
+     label-above/textarea-below block (reuses .edit-field) laid out 2-per-row
+     so the boxes are wide enough to actually type into — replaces an earlier
+     8-column table whose per-cell <input> was too narrow to use, and whose
+     single-line inputs couldn't hold a line break. */
+  .spec-edit-entries { display: flex; flex-direction: column; gap: 14px; margin-bottom: 10px; }
+  .spec-edit-entry { border: 1px solid var(--border); border-radius: 10px; background: var(--surface); padding: 10px 12px 12px; }
+  .spec-edit-entry-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .spec-edit-entry-index { font-size: 10.5px; font-weight: 600; letter-spacing: 0.04em; color: var(--text-faint); }
+  .spec-edit-fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px 14px; }
+  .spec-edit-fields .spec-edit-field-wide { grid-column: 1 / -1; }
+  @media (max-width: 480px) { .spec-edit-fields { grid-template-columns: 1fr; } }
 
   /* ---------- Product grid (view mode) ---------- */
   .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: start; }
@@ -1044,31 +1045,31 @@ function renderItemsEdit(p, pIdx) {
 }
 
 function renderSpecsEdit(p, pIdx) {
-  const rows = (p.specs || []).map((s, sIdx) => `
-    <tr data-spec-idx="${sIdx}">
-      <td><input class="ipt" data-field="moq" value="${esc(s.moq)}" placeholder="MOQ"></td>
-      <td><input class="ipt" data-field="size" value="${esc(s.size)}" placeholder="尺寸"></td>
-      <td><input class="ipt" data-field="material" value="${esc(s.material)}" placeholder="材質"></td>
-      <td><input class="ipt" data-field="sampleCost" value="${esc(s.sampleCost)}" placeholder="打樣金額"></td>
-      <td><input class="ipt" data-field="sampleDays" value="${esc(s.sampleDays)}" placeholder="打樣天數"></td>
-      <td><input class="ipt" data-field="bulkDays" value="${esc(s.bulkDays)}" placeholder="大貨天數"></td>
-      <td><input class="ipt" data-field="quote" value="${esc(s.quote)}" placeholder="報價"></td>
-      <td><input class="ipt" data-field="note" value="${esc(s.note)}" placeholder="備註"></td>
-      <td><button class="row-del" data-action="del-spec" title="刪除此列">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
-      </button></td>
-    </tr>`).join("");
+  const entries = (p.specs || []).map((s, sIdx) => {
+    const fields = SPEC_FIELD_DEFS.map(([key, label]) => {
+      const wide = key === "quote" || key === "note";
+      return `
+        <div class="edit-field${wide ? " spec-edit-field-wide" : ""}">
+          <label>${esc(label)}</label>
+          <textarea class="ipt" data-field="${key}" placeholder="${esc(label)}" rows="${wide ? 3 : 2}">${esc(s[key])}</textarea>
+        </div>`;
+    }).join("");
+    return `
+      <div class="spec-edit-entry" data-spec-idx="${sIdx}">
+        <div class="spec-edit-entry-head">
+          <span class="spec-edit-entry-index">比較項目 ${sIdx + 1}</span>
+          <button class="row-del" data-action="del-spec" title="刪除此筆">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          </button>
+        </div>
+        <div class="spec-edit-fields">${fields}</div>
+      </div>`;
+  }).join("");
 
   return `
     <div class="spec-edit-block">
-      <label class="spec-edit-label">細項說明（MOQ／尺寸／材質／打樣金額／打樣天數／大貨天數／報價／備註，可留空、可新增多筆）</label>
-      <div class="table-scroll">
-        <table class="specs-edit-table">
-          <colgroup><col class="c-moq"><col class="c-size"><col class="c-material"><col class="c-samplecost"><col class="c-sampledays"><col class="c-bulkdays"><col class="c-quote"><col class="c-note"><col class="c-del"></colgroup>
-          <thead><tr><th>MOQ</th><th>尺寸</th><th>材質</th><th>打樣金額</th><th>打樣天數</th><th>大貨天數</th><th>報價</th><th>備註</th><th></th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
+      <label class="spec-edit-label">細項說明（MOQ／尺寸／材質／打樣金額／打樣天數／大貨天數／報價／備註，可留空、可新增多筆，欄位皆可分行輸入）</label>
+      <div class="spec-edit-entries">${entries}</div>
       <button class="add-row-btn" data-action="add-spec">＋ 新增細項列</button>
     </div>`;
 }
@@ -1264,7 +1265,7 @@ function wireEditDelegation() {
     const pIdx = Number(cardEl.dataset.idx);
     const p = state[pIdx];
     const rowEl = t.closest("tr[data-item-idx]");
-    const specRowEl = t.closest("tr[data-spec-idx]");
+    const specRowEl = t.closest("[data-spec-idx]");
 
     if (rowEl) {
       const iIdx = Number(rowEl.dataset.itemIdx);
@@ -1427,7 +1428,7 @@ function wireEditDelegation() {
       }
       const cardEl = delSpecBtn.closest(".card-edit");
       const pIdx = Number(cardEl.dataset.idx);
-      const rowEl = delSpecBtn.closest("tr[data-spec-idx]");
+      const rowEl = delSpecBtn.closest("[data-spec-idx]");
       const sIdx = Number(rowEl.dataset.specIdx);
       state[pIdx].specs.splice(sIdx, 1);
       markDirty();
