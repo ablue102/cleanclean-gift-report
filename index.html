@@ -249,6 +249,63 @@
   .pause-section > .pause-grid { display: none; margin-top: 12px; }
   .pause-section[open] > .pause-grid { display: grid; }
 
+  /* ---------- Per-product "細項說明" (MOQ/尺寸/材質/打樣天數/大貨天數/報價/備註) ----------
+     Visually separated from the cost items table via a soft mint tint (same
+     accent used for tags/highlights elsewhere), collapsed by default so it
+     doesn't compete with the cost figures that are the page's main purpose. */
+  .spec-section {
+    margin-top: 14px;
+    background: var(--accent-soft);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 14px;
+  }
+  .spec-summary {
+    display: flex; align-items: center; gap: 8px; cursor: pointer;
+    list-style: none; -webkit-tap-highlight-color: transparent;
+    color: var(--accent-strong); font-size: 12.5px; font-weight: 600; letter-spacing: 0.03em;
+    user-select: none;
+  }
+  .spec-summary::-webkit-details-marker { display: none; }
+  .spec-caret { display: inline-block; transition: transform .15s ease; }
+  .spec-section[open] .spec-caret { transform: rotate(90deg); }
+  /* Same fix as .pause-grid above: pin display explicitly so the closed
+     <details> actually hides its content instead of being overridden by an
+     author CSS rule that sets display on this element. */
+  .spec-section > .spec-body { display: none; margin-top: 10px; }
+  .spec-section[open] > .spec-body { display: block; }
+
+  table.specs { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 560px; }
+  table.specs thead th { text-align: left; font-weight: 600; font-size: 11px; letter-spacing: 0.03em; color: var(--accent-strong); padding: 6px 8px; border-bottom: 1px solid var(--border-strong); white-space: nowrap; }
+  table.specs thead th.num { text-align: right; }
+  table.specs tbody td { padding: 6px 8px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
+  table.specs tbody td.num { text-align: right; font-family: "IBM Plex Mono", monospace; }
+  table.specs tbody tr:last-child td { border-bottom: none; }
+
+  /* Edit-mode "細項說明" block — same mint tint as the view-mode version so
+     the two stay visually linked, but always expanded while editing (no
+     need to hide the very fields the editor is actively filling in). */
+  .spec-edit-block {
+    margin-top: 14px;
+    background: var(--accent-soft);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 14px 12px;
+  }
+  .spec-edit-label { font-size: 11px; color: var(--accent-strong); letter-spacing: .03em; display: block; margin-bottom: 6px; font-weight: 600; }
+  .specs-edit-table { width: 100%; border-collapse: separate; border-spacing: 0 6px; }
+  .specs-edit-table th { text-align: left; font-size: 11px; color: var(--text-faint); letter-spacing: .03em; padding: 0 6px 2px; font-weight: 600; }
+  .specs-edit-table td { padding: 0 6px; vertical-align: top; }
+  .specs-edit-table col.c-moq { width: 9%; }
+  .specs-edit-table col.c-size { width: 12%; }
+  .specs-edit-table col.c-material { width: 12%; }
+  .specs-edit-table col.c-samplecost { width: 11%; }
+  .specs-edit-table col.c-sampledays { width: 10%; }
+  .specs-edit-table col.c-bulkdays { width: 10%; }
+  .specs-edit-table col.c-quote { width: 11%; }
+  .specs-edit-table col.c-note { width: 21%; }
+  .specs-edit-table col.c-del { width: 34px; }
+
   /* ---------- Product grid (view mode) ---------- */
   .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: start; }
   @media (max-width: 780px) { .grid { grid-template-columns: repeat(2, 1fr); } }
@@ -819,6 +876,42 @@ function renderItemsTable(p) {
     </div>`;
 }
 
+function renderSpecsView(p) {
+  const rows = p.specs || [];
+  if (!rows.length) return "";
+  const trs = rows.map(s => `
+    <tr>
+      ${cell(esc(s.moq), "num")}
+      ${cell(esc(s.size))}
+      ${cell(esc(s.material))}
+      ${cell(esc(s.sampleCost), "num")}
+      ${cell(esc(s.sampleDays), "num")}
+      ${cell(esc(s.bulkDays), "num")}
+      ${cell(esc(s.quote), "num")}
+      ${cell(esc(s.note))}
+    </tr>`).join("");
+
+  return `
+    <details class="spec-section">
+      <summary class="spec-summary">
+        <span class="spec-caret">▸</span>
+        <span>細項說明</span>
+        <span class="chip">${rows.length} 筆</span>
+      </summary>
+      <div class="spec-body">
+        <div class="table-scroll">
+          <table class="specs">
+            <thead><tr>
+              <th class="num">MOQ</th><th>尺寸</th><th>材質</th>
+              <th class="num">打樣金額</th><th class="num">打樣天數</th><th class="num">大貨天數</th><th class="num">報價</th><th>備註</th>
+            </tr></thead>
+            <tbody>${trs}</tbody>
+          </table>
+        </div>
+      </div>
+    </details>`;
+}
+
 const EDIT_PENCIL_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`;
 const GRIP_SVG = `<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>`;
 
@@ -855,6 +948,7 @@ function renderPCard(p, idx) {
     <div class="card-body">
       ${noteBlock}
       ${renderItemsTable(p)}
+      ${renderSpecsView(p)}
     </div>
   </details>`;
 }
@@ -939,6 +1033,36 @@ function renderItemsEdit(p, pIdx) {
     <button class="add-row-btn" data-action="add-item">＋ 新增明細列</button>`;
 }
 
+function renderSpecsEdit(p, pIdx) {
+  const rows = (p.specs || []).map((s, sIdx) => `
+    <tr data-spec-idx="${sIdx}">
+      <td><input class="ipt" data-field="moq" value="${esc(s.moq)}" placeholder="MOQ"></td>
+      <td><input class="ipt" data-field="size" value="${esc(s.size)}" placeholder="尺寸"></td>
+      <td><input class="ipt" data-field="material" value="${esc(s.material)}" placeholder="材質"></td>
+      <td><input class="ipt" data-field="sampleCost" value="${esc(s.sampleCost)}" placeholder="打樣金額"></td>
+      <td><input class="ipt" data-field="sampleDays" value="${esc(s.sampleDays)}" placeholder="打樣天數"></td>
+      <td><input class="ipt" data-field="bulkDays" value="${esc(s.bulkDays)}" placeholder="大貨天數"></td>
+      <td><input class="ipt" data-field="quote" value="${esc(s.quote)}" placeholder="報價"></td>
+      <td><input class="ipt" data-field="note" value="${esc(s.note)}" placeholder="備註"></td>
+      <td><button class="row-del" data-action="del-spec" title="刪除此列">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+      </button></td>
+    </tr>`).join("");
+
+  return `
+    <div class="spec-edit-block">
+      <label class="spec-edit-label">細項說明（MOQ／尺寸／材質／打樣金額／打樣天數／大貨天數／報價／備註，可留空、可新增多筆）</label>
+      <div class="table-scroll">
+        <table class="specs-edit-table">
+          <colgroup><col class="c-moq"><col class="c-size"><col class="c-material"><col class="c-samplecost"><col class="c-sampledays"><col class="c-bulkdays"><col class="c-quote"><col class="c-note"><col class="c-del"></colgroup>
+          <thead><tr><th>MOQ</th><th>尺寸</th><th>材質</th><th>打樣金額</th><th>打樣天數</th><th>大貨天數</th><th>報價</th><th>備註</th><th></th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <button class="add-row-btn" data-action="add-spec">＋ 新增細項列</button>
+    </div>`;
+}
+
 function renderCardEdit(p, idx) {
   const devFlag = isDevYear(p.year);
   const pauseFlag = isPauseYear(p.year);
@@ -981,6 +1105,7 @@ function renderCardEdit(p, idx) {
       <textarea class="ipt" data-field="note" placeholder="例如：大貨尚未下單，單價暫無法計算">${esc(p.note)}</textarea>
     </div>
     ${renderItemsEdit(p, idx)}
+    ${renderSpecsEdit(p, idx)}
   </div>`;
 }
 
@@ -1129,6 +1254,7 @@ function wireEditDelegation() {
     const pIdx = Number(cardEl.dataset.idx);
     const p = state[pIdx];
     const rowEl = t.closest("tr[data-item-idx]");
+    const specRowEl = t.closest("tr[data-spec-idx]");
 
     if (rowEl) {
       const iIdx = Number(rowEl.dataset.itemIdx);
@@ -1148,6 +1274,14 @@ function wireEditDelegation() {
         if (totalEl) totalEl.textContent = totalDisplayText(p);
         if (unitEl) unitEl.textContent = unitDisplayText(p);
       }
+    } else if (specRowEl) {
+      // "細項說明" rows (MOQ/尺寸/材質/打樣天數/大貨天數/報價/備註) are kept as
+      // free-text fields — no numeric coercion, since values like "5-7天" or
+      // "NT$500起" are expected here.
+      const sIdx = Number(specRowEl.dataset.specIdx);
+      p.specs = p.specs || [];
+      p.specs[sIdx] = p.specs[sIdx] || {};
+      p.specs[sIdx][field] = t.value === "" ? null : t.value;
     } else {
       if (field === "year") { const n = coerceNum(t.value); if (n !== null) { p.year = n; cardEl.dataset.year = p.year; } }
       else { p[field] = t.value === "" ? null : t.value; if (field === "name") cardEl.dataset.name = (t.value||"").toLowerCase(); }
@@ -1263,6 +1397,34 @@ function wireEditDelegation() {
       return;
     }
 
+    const addSpecBtn = e.target.closest('[data-action="add-spec"]');
+    if (addSpecBtn) {
+      const cardEl = addSpecBtn.closest(".card-edit");
+      const pIdx = Number(cardEl.dataset.idx);
+      state[pIdx].specs = state[pIdx].specs || [];
+      state[pIdx].specs.push({moq: null, size: null, material: null, sampleCost: null, sampleDays: null, bulkDays: null, quote: null, note: null});
+      markDirty();
+      renderList();
+      return;
+    }
+
+    const delSpecBtn = e.target.closest('[data-action="del-spec"]');
+    if (delSpecBtn) {
+      if (!delSpecBtn.classList.contains("confirm")) {
+        delSpecBtn.classList.add("confirm");
+        setTimeout(() => delSpecBtn.classList.remove("confirm"), 3000);
+        return;
+      }
+      const cardEl = delSpecBtn.closest(".card-edit");
+      const pIdx = Number(cardEl.dataset.idx);
+      const rowEl = delSpecBtn.closest("tr[data-spec-idx]");
+      const sIdx = Number(rowEl.dataset.specIdx);
+      state[pIdx].specs.splice(sIdx, 1);
+      markDirty();
+      renderList();
+      return;
+    }
+
     const delProductBtn = e.target.closest('[data-action="del-product"]');
     if (delProductBtn) {
       if (!delProductBtn.classList.contains("confirm")) {
@@ -1296,7 +1458,8 @@ function addProduct(yearOverride) {
     unit: null,
     note: null,
     img: null,
-    items: DEFAULT_ITEM_STAGES.map(s => ({s, q: null, rmb: null, twd: null, u: null, d: "", n: ""}))
+    items: DEFAULT_ITEM_STAGES.map(s => ({s, q: null, rmb: null, twd: null, u: null, d: "", n: ""})),
+    specs: []
   });
   const newIdx = state.length - 1;
   editingIdx = newIdx;
