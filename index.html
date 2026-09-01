@@ -1072,21 +1072,32 @@ function renderPCard(p, idx, opts) {
 // within each status group (a year, 進行中, or 暫停) so the most recently
 // active product floats to the top automatically, instead of staying stuck
 // wherever it happened to be added.
-// Known limitation: because no year is stored per item, this can't tell
-// "12/20" from one year apart from "1/5" the next — it only orders items
-// correctly within a single status group where dates are expected to fall
-// in the same rough timeframe, not across a Dec→Jan boundary. That's an
-// acceptable trade-off for now since there's nowhere to store a per-item
-// year without a data migration.
+//
+// Deliberately NOT "the item with the largest M/D value": items are
+// entered in chronological workflow order (sample → 打樣 → 運費 → 大貨 →
+// 關稅 ...), and a real product's stages routinely cross a Dec→Jan year
+// boundary — e.g. sample dated 12/24 one year, customs cleared 4/20 the
+// next. Comparing raw month numbers would rank that 12/24 sample as
+// "later" than the 4/20 customs date, which is backwards. Instead this
+// walks from the END of the items array and returns the first (i.e. most
+// recently entered) item that has a recognizable date — a reliable proxy
+// for "when this product was last touched" regardless of which calendar
+// year each date actually fell in, as long as items stay in entry order
+// (true unless someone manually drags a row out of sequence).
+// Known remaining limitation: comparing that "last touched" date *across
+// two different products* still can't account for which calendar year
+// either one is actually in (a product last touched "9/1" isn't
+// necessarily more recent than one last touched "12/30" if that 12/30 was
+// the year before) — there's no way to resolve that without storing a
+// year per item, which would need a data migration. Acceptable for now
+// since this is a best-effort recency ordering, not an exact one.
 function productLatestDateKey(p) {
-  let best = 0;
-  for (const it of (p.items || [])) {
-    const m = /^(\d{1,2})\/(\d{1,2})$/.exec(String(it.d || "").trim());
-    if (!m) continue;
-    const key = Number(m[1]) * 100 + Number(m[2]);
-    if (key > best) best = key;
+  const items = p.items || [];
+  for (let i = items.length - 1; i >= 0; i--) {
+    const m = /^(\d{1,2})\/(\d{1,2})$/.exec(String(items[i].d || "").trim());
+    if (m) return Number(m[1]) * 100 + Number(m[2]);
   }
-  return best;
+  return 0;
 }
 
 function groupedIndexesByYear() {
