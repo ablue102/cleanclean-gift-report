@@ -1065,9 +1065,41 @@ function renderPCard(p, idx, opts) {
   </details>`;
 }
 
+// Latest-activity date extracted from a product's cost-detail items (each
+// item's "d" field is free text like "7/14" or "9/1" — month/day only, no
+// year stored). Returns a sortable "MMDD" number, or 0 if the product has
+// no item with a recognizable M/D date. Used as the secondary sort key
+// within each status group (a year, 進行中, or 暫停) so the most recently
+// active product floats to the top automatically, instead of staying stuck
+// wherever it happened to be added.
+// Known limitation: because no year is stored per item, this can't tell
+// "12/20" from one year apart from "1/5" the next — it only orders items
+// correctly within a single status group where dates are expected to fall
+// in the same rough timeframe, not across a Dec→Jan boundary. That's an
+// acceptable trade-off for now since there's nowhere to store a per-item
+// year without a data migration.
+function productLatestDateKey(p) {
+  let best = 0;
+  for (const it of (p.items || [])) {
+    const m = /^(\d{1,2})\/(\d{1,2})$/.exec(String(it.d || "").trim());
+    if (!m) continue;
+    const key = Number(m[1]) * 100 + Number(m[2]);
+    if (key > best) best = key;
+  }
+  return best;
+}
+
 function groupedIndexesByYear() {
   const idxs = state.map((p, i) => i);
-  idxs.sort((a, b) => yearSortValue(state[b].year) - yearSortValue(state[a].year));
+  idxs.sort((a, b) => {
+    const yearDiff = yearSortValue(state[b].year) - yearSortValue(state[a].year);
+    if (yearDiff !== 0) return yearDiff;
+    // Same status group: most recently active product (by its own items'
+    // latest date) comes first. Products with no dated items (key 0) sink
+    // to the bottom of the group, in their original relative order (JS
+    // sort is stable).
+    return productLatestDateKey(state[b]) - productLatestDateKey(state[a]);
+  });
   return idxs;
 }
 
