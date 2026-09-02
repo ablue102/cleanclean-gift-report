@@ -396,6 +396,7 @@
   table.items tbody td { padding: 8px 10px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
   table.items tbody tr:last-child td { border-bottom: none; }
   table.items tbody tr:hover td { background: var(--surface-hover); }
+  .item-date-year { color: var(--text-faint); font-size: 11.5px; margin-left: 2px; }
 
   td.stage { font-weight: 500; white-space: nowrap; }
   td.num { text-align: right; font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -489,7 +490,8 @@
   .items-edit-table col.c-twd { width: 10%; }
   .items-edit-table col.c-unit { width: 10%; }
   .items-edit-table col.c-date { width: 9%; }
-  .items-edit-table col.c-note { width: 25%; }
+  .items-edit-table col.c-year { width: 8%; }
+  .items-edit-table col.c-note { width: 17%; }
   .items-edit-table col.c-del { width: 34px; }
 
   /* Drag-to-reorder handle on each item row */
@@ -943,6 +945,17 @@ function cell(content, cls) {
   return `<td class="${cls||''}">${content}</td>`;
 }
 
+// Renders an item's date, appending its optional explicit year (in muted
+// parentheses) when one has been set — e.g. "9/1 (2026)" — so it's visible
+// in the read-only view exactly why that item sorts where it does. Items
+// without a "y" just show the plain M/D as before.
+function fmtItemDate(it) {
+  if (!it || !it.d) return null;
+  const y = Number(it.y);
+  const hasYear = it.y !== null && it.y !== undefined && it.y !== "" && Number.isFinite(y) && y > 0;
+  return hasYear ? `${esc(it.d)}<span class="item-date-year">（${y}）</span>` : esc(it.d);
+}
+
 function renderItemsTable(p) {
   const rows = (p.items || []).map(it => `
     <tr>
@@ -951,7 +964,7 @@ function renderItemsTable(p) {
       ${cell(fmtRMB(it.rmb), "num")}
       ${cell(fmtTWD(it.twd), "num")}
       ${cell(it.u !== null && typeof it.u === "number" ? fmtTWD(it.u) : (it.u ? esc(it.u) : null), "num")}
-      ${cell(esc(it.d), "date")}
+      ${cell(fmtItemDate(it), "date")}
       ${cell(esc(it.n), "note")}
     </tr>`).join("");
 
@@ -1066,12 +1079,12 @@ function renderPCard(p, idx, opts) {
 }
 
 // Latest-activity date extracted from a product's cost-detail items (each
-// item's "d" field is free text like "7/14" or "9/1" — month/day only, no
-// year stored). Returns a sortable "MMDD" number, or 0 if the product has
-// no item with a recognizable M/D date. Used as the secondary sort key
-// within each status group (a year, 進行中, or 暫停) so the most recently
-// active product floats to the top automatically, instead of staying stuck
-// wherever it happened to be added.
+// item's "d" field is free text like "7/14" or "9/1" — month/day only by
+// default). Returns a sortable number, or 0 if the product has no item with
+// a recognizable date. Used as the secondary sort key within each status
+// group (a year, 進行中, or 暫停) so the most recently active product floats
+// to the top automatically, instead of staying stuck wherever it happened
+// to be added.
 //
 // Deliberately NOT "the item with the largest M/D value": items are
 // entered in chronological workflow order (sample → 打樣 → 運費 → 大貨 →
@@ -1084,18 +1097,33 @@ function renderPCard(p, idx, opts) {
 // for "when this product was last touched" regardless of which calendar
 // year each date actually fell in, as long as items stay in entry order
 // (true unless someone manually drags a row out of sequence).
-// Known remaining limitation: comparing that "last touched" date *across
-// two different products* still can't account for which calendar year
-// either one is actually in (a product last touched "9/1" isn't
-// necessarily more recent than one last touched "12/30" if that 12/30 was
-// the year before) — there's no way to resolve that without storing a
-// year per item, which would need a data migration. Acceptable for now
-// since this is a best-effort recency ordering, not an exact one.
+//
+// Optional per-item "y" (year) field: each item may additionally carry an
+// explicit year (e.g. y: 2026), entered via the "年份" column next to the
+// date in edit mode. This is purely additive — the vast majority of
+// existing items have no "y" and keep working exactly as before (plain
+// M/D comparison). When the chosen item DOES have a year, the key becomes
+// year*10000 + M*100+D instead, which lets it be compared accurately
+// against items in other products regardless of which calendar year those
+// other items' bare M/D dates actually fall in. This is the fix for the
+// residual cross-product ambiguity noted previously (a product last
+// touched "9/1" isn't necessarily more recent than one last touched
+// "12/30" if that 12/30 was the year before) — tag the ambiguous item with
+// its real year and it will now sort correctly relative to untagged items,
+// since any real year dwarfs a bare 4-digit M/D key. No backfill needed:
+// old items stay untagged and fall back to the pre-existing heuristic.
 function productLatestDateKey(p) {
   const items = p.items || [];
   for (let i = items.length - 1; i >= 0; i--) {
-    const m = /^(\d{1,2})\/(\d{1,2})$/.exec(String(items[i].d || "").trim());
-    if (m) return Number(m[1]) * 100 + Number(m[2]);
+    const it = items[i];
+    const m = /^(\d{1,2})\/(\d{1,2})$/.exec(String(it.d || "").trim());
+    if (!m) continue;
+    const md = Number(m[1]) * 100 + Number(m[2]);
+    const y = Number(it.y);
+    if (it.y !== null && it.y !== undefined && it.y !== "" && Number.isFinite(y) && y > 0) {
+      return y * 10000 + md;
+    }
+    return md;
   }
   return 0;
 }
@@ -1174,7 +1202,8 @@ function renderItemsEdit(p, pIdx) {
       <td><input class="ipt mono" type="number" data-field="rmb" value="${it.rmb ?? ""}" placeholder="¥"></td>
       <td><input class="ipt mono" type="number" data-field="twd" value="${it.twd ?? ""}" placeholder="NT$"></td>
       <td><input class="ipt mono" data-field="u" value="${it.u ?? ""}" placeholder="單價"></td>
-      <td><input class="ipt mono" data-field="d" value="${esc(it.d)}" placeholder="日期"></td>
+      <td><input class="ipt mono" data-field="d" value="${esc(it.d)}" placeholder="日期(M/D)"></td>
+      <td><input class="ipt mono" type="number" data-field="y" value="${it.y ?? ""}" placeholder="年份(選填)" title="只在日期跨年、需要精準判斷新舊時才填，例如去年12月的樣品 vs 今年4月的關稅"></td>
       <td><input class="ipt" data-field="n" value="${esc(it.n)}" placeholder="備註"></td>
       <td><button class="row-del" data-action="del-item" title="刪除此列">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
@@ -1184,8 +1213,8 @@ function renderItemsEdit(p, pIdx) {
   return `
     <div class="table-scroll">
       <table class="items-edit-table">
-        <colgroup><col class="c-drag"><col class="c-stage"><col class="c-qty"><col class="c-rmb"><col class="c-twd"><col class="c-unit"><col class="c-date"><col class="c-note"><col class="c-del"></colgroup>
-        <thead><tr><th></th><th>階段/項目</th><th>數量</th><th>人民幣¥</th><th>台幣NT$</th><th>單價</th><th>日期</th><th>備註</th><th></th></tr></thead>
+        <colgroup><col class="c-drag"><col class="c-stage"><col class="c-qty"><col class="c-rmb"><col class="c-twd"><col class="c-unit"><col class="c-date"><col class="c-year"><col class="c-note"><col class="c-del"></colgroup>
+        <thead><tr><th></th><th>階段/項目</th><th>數量</th><th>人民幣¥</th><th>台幣NT$</th><th>單價</th><th>日期</th><th>年份</th><th>備註</th><th></th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>
@@ -1417,7 +1446,7 @@ function wireEditDelegation() {
 
     if (rowEl) {
       const iIdx = Number(rowEl.dataset.itemIdx);
-      const numeric = ["q", "rmb", "twd"].includes(field);
+      const numeric = ["q", "rmb", "twd", "y"].includes(field);
       p.items[iIdx][field] = numeric ? coerceNum(t.value) : (t.value === "" ? null : t.value);
       if (field === "u") {
         const n = Number(t.value);
@@ -1532,7 +1561,7 @@ function wireEditDelegation() {
       const cardEl = addItemBtn.closest(".card-edit");
       const pIdx = Number(cardEl.dataset.idx);
       state[pIdx].items = state[pIdx].items || [];
-      state[pIdx].items.push({s: "", q: null, rmb: null, twd: null, u: null, d: "", n: ""});
+      state[pIdx].items.push({s: "", q: null, rmb: null, twd: null, u: null, d: "", y: null, n: ""});
       markDirty();
       renderList();
       return;
@@ -1617,7 +1646,7 @@ function addProduct(yearOverride) {
     unit: null,
     note: null,
     img: null,
-    items: DEFAULT_ITEM_STAGES.map(s => ({s, q: null, rmb: null, twd: null, u: null, d: "", n: ""})),
+    items: DEFAULT_ITEM_STAGES.map(s => ({s, q: null, rmb: null, twd: null, u: null, d: "", y: null, n: ""})),
     specs: []
   });
   const newIdx = state.length - 1;
