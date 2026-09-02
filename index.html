@@ -396,7 +396,6 @@
   table.items tbody td { padding: 8px 10px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; }
   table.items tbody tr:last-child td { border-bottom: none; }
   table.items tbody tr:hover td { background: var(--surface-hover); }
-  .item-date-year { color: var(--text-faint); font-size: 11.5px; margin-left: 2px; }
 
   td.stage { font-weight: 500; white-space: nowrap; }
   td.num { text-align: right; font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -945,17 +944,6 @@ function cell(content, cls) {
   return `<td class="${cls||''}">${content}</td>`;
 }
 
-// Renders an item's date, appending its optional explicit year (in muted
-// parentheses) when one has been set — e.g. "9/1 (2026)" — so it's visible
-// in the read-only view exactly why that item sorts where it does. Items
-// without a "y" just show the plain M/D as before.
-function fmtItemDate(it) {
-  if (!it || !it.d) return null;
-  const y = Number(it.y);
-  const hasYear = it.y !== null && it.y !== undefined && it.y !== "" && Number.isFinite(y) && y > 0;
-  return hasYear ? `${esc(it.d)}<span class="item-date-year">（${y}）</span>` : esc(it.d);
-}
-
 function renderItemsTable(p) {
   const rows = (p.items || []).map(it => `
     <tr>
@@ -964,7 +952,7 @@ function renderItemsTable(p) {
       ${cell(fmtRMB(it.rmb), "num")}
       ${cell(fmtTWD(it.twd), "num")}
       ${cell(it.u !== null && typeof it.u === "number" ? fmtTWD(it.u) : (it.u ? esc(it.u) : null), "num")}
-      ${cell(fmtItemDate(it), "date")}
+      ${cell(esc(it.d), "date")}
       ${cell(esc(it.n), "note")}
     </tr>`).join("");
 
