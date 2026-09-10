@@ -483,14 +483,13 @@
   .items-edit-table th { text-align: left; font-size: 11px; color: var(--text-faint); letter-spacing: .03em; padding: 0 6px 2px; font-weight: 600; }
   .items-edit-table td { padding: 0 6px; vertical-align: top; }
   .items-edit-table col.c-drag { width: 26px; }
-  .items-edit-table col.c-stage { width: 15%; }
-  .items-edit-table col.c-qty { width: 8%; }
-  .items-edit-table col.c-rmb { width: 10%; }
-  .items-edit-table col.c-twd { width: 10%; }
-  .items-edit-table col.c-unit { width: 10%; }
-  .items-edit-table col.c-date { width: 9%; }
-  .items-edit-table col.c-year { width: 8%; }
-  .items-edit-table col.c-note { width: 17%; }
+  .items-edit-table col.c-stage { width: 17%; }
+  .items-edit-table col.c-qty { width: 9%; }
+  .items-edit-table col.c-rmb { width: 11%; }
+  .items-edit-table col.c-twd { width: 11%; }
+  .items-edit-table col.c-date { width: 10%; }
+  .items-edit-table col.c-year { width: 9%; }
+  .items-edit-table col.c-note { width: 25%; }
   .items-edit-table col.c-del { width: 34px; }
 
   /* Drag-to-reorder handle on each item row */
@@ -1189,7 +1188,6 @@ function renderItemsEdit(p, pIdx) {
       <td><input class="ipt mono" type="number" data-field="q" value="${it.q ?? ""}" placeholder="數量"></td>
       <td><input class="ipt mono" type="number" data-field="rmb" value="${it.rmb ?? ""}" placeholder="¥"></td>
       <td><input class="ipt mono" type="number" data-field="twd" value="${it.twd ?? ""}" placeholder="NT$"></td>
-      <td><input class="ipt mono" data-field="u" value="${it.u ?? ""}" placeholder="單價"></td>
       <td><input class="ipt mono" data-field="d" value="${esc(it.d)}" placeholder="日期(M/D)"></td>
       <td><input class="ipt mono" type="number" data-field="y" value="${it.y ?? ""}" placeholder="年份(選填)" title="只在日期跨年、需要精準判斷新舊時才填，例如去年12月的樣品 vs 今年4月的關稅"></td>
       <td><input class="ipt" data-field="n" value="${esc(it.n)}" placeholder="備註"></td>
@@ -1201,8 +1199,8 @@ function renderItemsEdit(p, pIdx) {
   return `
     <div class="table-scroll">
       <table class="items-edit-table">
-        <colgroup><col class="c-drag"><col class="c-stage"><col class="c-qty"><col class="c-rmb"><col class="c-twd"><col class="c-unit"><col class="c-date"><col class="c-year"><col class="c-note"><col class="c-del"></colgroup>
-        <thead><tr><th></th><th>階段/項目</th><th>數量</th><th>人民幣¥</th><th>台幣NT$</th><th>單價</th><th>日期</th><th>年份</th><th>備註</th><th></th></tr></thead>
+        <colgroup><col class="c-drag"><col class="c-stage"><col class="c-qty"><col class="c-rmb"><col class="c-twd"><col class="c-date"><col class="c-year"><col class="c-note"><col class="c-del"></colgroup>
+        <thead><tr><th></th><th>階段/項目</th><th>數量</th><th>人民幣¥</th><th>台幣NT$</th><th>日期</th><th>年份</th><th>備註</th><th></th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>
@@ -1436,10 +1434,6 @@ function wireEditDelegation() {
       const iIdx = Number(rowEl.dataset.itemIdx);
       const numeric = ["q", "rmb", "twd", "y"].includes(field);
       p.items[iIdx][field] = numeric ? coerceNum(t.value) : (t.value === "" ? null : t.value);
-      if (field === "u") {
-        const n = Number(t.value);
-        p.items[iIdx].u = t.value === "" ? null : (Number.isNaN(n) ? t.value : n);
-      }
       if (field === "q" || field === "twd") {
         // 總金額／台幣單價 are derived from the item rows — recompute them and
         // update the read-only displays directly (no renderList(), so the
