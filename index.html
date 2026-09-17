@@ -278,10 +278,9 @@
   /* Label-left / value-right rows (one block per specs entry) — replaces an
      earlier wide 8-column table that was hard to read once 報價/備註 held
      any real amount of text. */
-  .spec-entries { display: flex; flex-direction: column; }
-  .spec-entry { padding: 6px 0; }
-  .spec-entry + .spec-entry { border-top: 1px dashed var(--border-strong); margin-top: 6px; padding-top: 12px; }
-  .spec-entry-index { font-size: 10.5px; font-weight: 600; letter-spacing: 0.04em; color: var(--text-faint); margin-bottom: 6px; }
+  .spec-entries { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+  .spec-entry { border: 1px solid var(--border); border-radius: 10px; background: var(--surface); padding: 10px 12px; }
+  .spec-entry-index { font-size: 13.5px; font-weight: 700; letter-spacing: 0.02em; color: var(--accent-strong); margin-bottom: 6px; }
   .spec-field { display: flex; gap: 12px; padding: 3px 0; }
   .spec-field + .spec-field { border-top: 1px solid var(--border); }
   .spec-label { flex: 0 0 74px; font-size: 11px; font-weight: 600; letter-spacing: 0.03em; color: var(--accent-strong); padding-top: 1px; }
@@ -307,8 +306,9 @@
      single-line inputs couldn't hold a line break. */
   .spec-edit-entries { display: flex; flex-direction: column; gap: 14px; margin-bottom: 10px; }
   .spec-edit-entry { border: 1px solid var(--border); border-radius: 10px; background: var(--surface); padding: 10px 12px 12px; }
-  .spec-edit-entry-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-  .spec-edit-entry-index { font-size: 10.5px; font-weight: 600; letter-spacing: 0.04em; color: var(--text-faint); }
+  .spec-edit-entry-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  input.ipt.spec-vendor-input { flex: 1; font-size: 14px; font-weight: 700; color: var(--accent-strong); background: var(--accent-soft); border-color: var(--border); }
+  input.ipt.spec-vendor-input:focus { border-color: var(--accent-strong); }
   .spec-edit-fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px 14px; }
   .spec-edit-fields .spec-edit-field-wide { grid-column: 1 / -1; }
   @media (max-width: 480px) { .spec-edit-fields { grid-template-columns: 1fr; } }
@@ -1000,7 +1000,9 @@ function renderSpecsView(p) {
           <span class="spec-label">${esc(label)}</span>
           <span class="spec-value">${esc(s[key])}</span>
         </div>`).join("");
-    const indexTag = showIndex ? `<div class="spec-entry-index">比較項目 ${i + 1}</div>` : "";
+    const vendorName = (s.vendor !== undefined && s.vendor !== null && String(s.vendor).trim() !== "") ? esc(s.vendor) : "";
+    const headerText = vendorName || (showIndex ? `比較項目 ${i + 1}` : "");
+    const indexTag = headerText ? `<div class="spec-entry-index">${headerText}</div>` : "";
     return `<div class="spec-entry">${indexTag}${fields || `<div class="spec-field"><span class="spec-value spec-empty">（未填寫內容）</span></div>`}</div>`;
   }).join("");
 
@@ -1220,7 +1222,7 @@ function renderSpecsEdit(p, pIdx) {
     return `
       <div class="spec-edit-entry" data-spec-idx="${sIdx}">
         <div class="spec-edit-entry-head">
-          <span class="spec-edit-entry-index">比較項目 ${sIdx + 1}</span>
+          <input class="ipt spec-vendor-input" data-field="vendor" value="${esc(s.vendor)}" placeholder="廠商名稱">
           <button class="row-del" data-action="del-spec" title="刪除此筆">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
           </button>
@@ -1231,7 +1233,7 @@ function renderSpecsEdit(p, pIdx) {
 
   return `
     <div class="spec-edit-block">
-      <label class="spec-edit-label">細項說明（MOQ／尺寸／材質／打樣金額／打樣天數／大貨天數／報價／備註，可留空、可新增多筆，欄位皆可分行輸入）</label>
+      <label class="spec-edit-label">細項說明（廠商名稱／MOQ／尺寸／材質／打樣金額／打樣天數／大貨天數／報價／備註，可留空、可新增多筆，欄位皆可分行輸入）</label>
       <div class="spec-edit-entries">${entries}</div>
       <button class="add-row-btn" data-action="add-spec">＋ 新增細項列</button>
     </div>`;
@@ -1572,7 +1574,7 @@ function wireEditDelegation() {
       const cardEl = addSpecBtn.closest(".card-edit");
       const pIdx = Number(cardEl.dataset.idx);
       state[pIdx].specs = state[pIdx].specs || [];
-      state[pIdx].specs.push({moq: null, size: null, material: null, sampleCost: null, sampleDays: null, bulkDays: null, quote: null, note: null});
+      state[pIdx].specs.push({vendor: null, moq: null, size: null, material: null, sampleCost: null, sampleDays: null, bulkDays: null, quote: null, note: null});
       markDirty();
       renderList();
       return;
